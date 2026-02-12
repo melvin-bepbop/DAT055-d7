@@ -1,7 +1,6 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class TestDataEdits {
@@ -15,7 +14,7 @@ public class TestDataEdits {
     static final String PASSWORD = "postgres";
 
     public static void main(String[] args) {
-        String sql = "INSERT INTO Users (username, password) VALUES ('user1', password1)";
+        String sql = "INSERT INTO Users (username, password) VALUES (?, ?)";
         try (Connection connection = DriverManager.getConnection(DATABASE, USERNAME, PASSWORD);
             PreparedStatement prepStat = connection.prepareStatement(sql)) {
             
