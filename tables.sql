@@ -8,7 +8,7 @@ CREATE TABLE Channel(
 );
 CREATE TABLE Message(
     username TEXT References Users(username),
-    time DATETIME NOT NULL,
+    time DATETIME NOT NULL DEFUALT now(),
     channel  TEXT References Channel(name), --tvek om denna behövs, då om vi ändå sparar en 
                                             --messagelist i Channel objektet, så kommer alla  
                                             --messages var sorterade där
