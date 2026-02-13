@@ -14,19 +14,29 @@ public class TestDataEdits {
     static final String PASSWORD = "postgres";
 
     public static void main(String[] args) {
-        String sql = "INSERT INTO Users (username, password) VALUES (?, ?)";
+        String sql ="INSERT INTO Users (username, password) VALUES (?, ?);"+
+                    "INSERT INTO Channel (name) VALUES (?);"+
+                    "INSERT INTO Message (username, time, channel, type, content) VALUES "+
+                    "(?, ?, ?, ?, ?);";
         try (Connection connection = DriverManager.getConnection(DATABASE, USERNAME, PASSWORD);
             PreparedStatement prepStat = connection.prepareStatement(sql)) {
             
             // Här sätter vi värdena för våra ? (index börjar på 1)
             prepStat.setString(1, "user1");
             prepStat.setString(2, "password123");
+            prepStat.setString(3, "Test");
+            prepStat.setString(4, "user1");
+
+            prepStat.setString(6, "Test");
+            prepStat.setString(7, "Text");
+            prepStat.setString(8, "bla bla bla");
+
 
             // För INSERT, UPDATE och DELETE använder vi executeUpdate()
             int raderPaverkade = prepStat.executeUpdate();
             
             if (raderPaverkade > 0) {
-                System.out.println("En ny användare har lagts till");
+                System.out.println("En ny användare har lagts till ("+ raderPaverkade +")");
             }
 
         } catch (SQLException e) {
