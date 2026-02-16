@@ -26,13 +26,14 @@ public class Channel {
     public void addUser(User user) {
         if (!membersList.contains(user)) {
             membersList.add(user);
-            
+            Database.joinChannel(user.getUsername(), this.channelName);
         }
     }
 
     public void removeUser(User user) {
         if (membersList.contains(user)){
         membersList.remove(user);
+         Database.leaveChannel(user.getUsername(), this.channelName);
         }else{
         throw new IllegalArgumentException("User is not in the channel"); 
     }
