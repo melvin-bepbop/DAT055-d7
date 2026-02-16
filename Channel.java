@@ -26,6 +26,7 @@ public class Channel {
     public void addUser(User user) {
         if (!membersList.contains(user)) {
             membersList.add(user);
+            
         }
     }
 
