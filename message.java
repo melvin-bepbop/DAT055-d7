@@ -5,18 +5,6 @@ public class Message {
     private String Content;
     private LocalDateTime TimeStamp;
     private String type;
-<<<<<<< Updated upstream
-
-    public Message(String user, String cont, LocalDateTime time, String type){
-=======
-    public Message(String user, String cont, String type){
->>>>>>> Stashed changes
-        this.Username = user;
-        this.Content = cont;
-        this.TimeStamp = LocalDateTime.now();
-        this.type = type;
-    }
-
 
     public Message(String user, String cont, String type){
         this.Username = user;
