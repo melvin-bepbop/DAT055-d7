@@ -6,10 +6,17 @@ public class message {
     private LocalDateTime TimeStamp;
     private String type;
 
+
     public message(String user, String cont, String type){
         this.Username = user;
         this.Content = cont;
         this.TimeStamp = LocalDateTime.now();
+        this.type = type;
+    }
+    public message(String user, String cont, String type, LocalDateTime time){
+        this.Username = user;
+        this.Content = cont;
+        this.TimeStamp = time;
         this.type = type;
     }
     

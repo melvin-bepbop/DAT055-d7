@@ -33,7 +33,7 @@ public class Database {
         }
     }
     //add user to user list
-    public static boolean addUser(String username, String password) {
+    public static boolean createUser(String username, String password) {
     if (isUsernameTaken(username)) {
         return false; // Tells the constructor: "Stop! Name is taken."
     }
@@ -54,7 +54,7 @@ public class Database {
     }
 }
     //remove user from channel member list
-    public static void leaveChannel(String username, String channelName) {
+    public static void UserLeaveChannel(String username, String channelName) {
         try {
             // 1. Remove them from WHATEVER channel they are in right now
             // (If they aren't in one, this line just does nothing. No error!)
@@ -70,7 +70,7 @@ public class Database {
         }
     }
     //add user to chennel list 
-    public static void joinChannel(String username, String channelName) {
+    public static void UserJoinChannel(String username, String channelName) {
         try {
 
 
@@ -142,6 +142,80 @@ public class Database {
         } catch (SQLException e) {
             System.out.println("Error creating channel: " + e.getMessage());
         }
+    }
+
+    public static void AddMessage(String userName, LocalDateTime time, String ChannelName, String type, String Content){
+        try {
+            String sql = "INSERT INTO Message(username, time, channel, type, content) VALUES (?,?,?,?,?)";
+            PreparedStatement insertStmt = conn.prepareStatement(sql);
+            insertStmt.setString(1, userName);
+            insertStmt.setObject(2, time);
+            insertStmt.setObject(3, ChannelName);
+            insertStmt.setObject(4, type);
+            insertStmt.setObject(5, Content);
+
+
+            insertStmt.executeUpdate();
+            System.out.println("Message is now in  created");
+
+
+        } catch (SQLException e) {
+            System.out.println("Error creating channel: " + e.getMessage());
+        }
+    }
+    /*
+    username TEXT References Users(username),
+    time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    channel  TEXT References Channel(name), 
+    type TEXT CHECK (type in ('text', 'image')),
+    content TEXT NOT NULL,
+    */
+    public static LinkedList<message> GetAllMessagesInChannel(String channel){
+        LinkedList<message> messages = new LinkedList<>();
+        String sql = "Select * from message where Channel = ?";
+        try{
+            PreparedStatement insertStmt = conn.prepareStatement(sql);
+            insertStmt.setObject(1,channel);
+            try(ResultSet rs = insertStmt.executeQuery()){
+                while (rs.next()) {
+                    String user = rs.getString("username");
+                    java.sql.Timestamp sqlTime = rs.getTimestamp("time");
+                    LocalDateTime javaTime = sqlTime.toLocalDateTime();                    
+                    String type = rs.getString("channel");
+                    String content = rs.getString("content");
+                    messages.add(new message(user, content, type, javaTime));               
+                }
+            } catch (SQLException e) {
+                System.out.println("Error getting info from a message: " + e.getMessage());
+            }
+        } catch (SQLException e) {
+            System.out.println("Error getting messages in: " + channel + " : " + e.getMessage());
+        }
+        return messages;
+    }
+    public static LinkedList<message> GetNewMessagesInChannelFromTimeStamp(String channel, LocalDateTime Timestamp){
+        LinkedList<message> messages = new LinkedList<>();
+        String sql = "Select * from message where Channel = ? AND time > ?";
+        try{
+            PreparedStatement insertStmt = conn.prepareStatement(sql);
+            insertStmt.setObject(1,channel);
+            insertStmt.setObject(2,Timestamp);
+            try(ResultSet rs = insertStmt.executeQuery()){
+                while (rs.next()) {
+                    String user = rs.getString("username");
+                    java.sql.Timestamp sqlTime = rs.getTimestamp("time");
+                    LocalDateTime javaTime = sqlTime.toLocalDateTime();                    
+                    String type = rs.getString("channel");
+                    String content = rs.getString("content");
+                    messages.add(new message(user, content, type, javaTime));               
+                }
+            } catch (SQLException e) {
+                System.out.println("Error getting info from a message: " + e.getMessage());
+            }
+        } catch (SQLException e) {
+            System.out.println("Error getting messages in: " + channel + " : " + e.getMessage());
+        }
+        return messages;
     }
 
 }
