@@ -1,13 +1,12 @@
 import java.time.LocalDateTime;
 
-public class Message {
-public class Message {
+public class message {
     private String Username;
     private String Content;
     private LocalDateTime TimeStamp;
     private String type;
 
-    public Message(String user, String cont, String type){
+    public message(String user, String cont, String type){
         this.Username = user;
         this.Content = cont;
         this.TimeStamp = LocalDateTime.now();
