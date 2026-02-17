@@ -3,27 +3,31 @@ import java.util.List;
 import java.time.LocalDateTime;
 
 public class Channel {
-
-    private int channelID;
     private String channelName;
     private LocalDateTime createdAt;
     
-    private List<User> membersList;
-    private List<Message> messageList;
+    //private List<User> membersList;
+    //private List<Message> messageList;
    // private List<User> blockList; 
-
-    public Channel(int channelID, String channelName) {
-        this.channelID = channelID;
+    public Channel(){
+        this.channelName = "temp";
+        this.createdAt = LocalDateTime.now();
+    }
+    public Channel(String channelName) {
         this.channelName = channelName;
         this.createdAt = LocalDateTime.now(); 
         
-        this.membersList = new ArrayList<>();
-        this.messageList = new ArrayList<>();
+       // this.membersList = new ArrayList<>();
+       // this.messageList = new ArrayList<>();
        // this.blockList = new ArrayList<>();
+    }
+    public Channel(String channelName, LocalDateTime time){
+        this.channelName = channelName;
+        this.createdAt = time;
     }
 
    
-    public void addUser(User user) {
+    /*public void addUser(User user) {
         if (!membersList.contains(user)) {
             membersList.add(user);
         }
@@ -40,18 +44,16 @@ public class Channel {
     public void createNewMessage(User sender, String content) {
         Message msg = new Message(sender.getUsername(), content, "text");
         messageList.add(msg);
-    }
+    }*/
 
     public String getChannelName() {
         return channelName;
     }
 
-
-    public int getChannelID() {
-        return channelID;
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
-
-    public List<Message> getMessageList() {
-        return messageList;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
