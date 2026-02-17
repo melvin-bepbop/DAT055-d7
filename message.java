@@ -1,6 +1,7 @@
 import java.time.LocalDateTime;
 
 public class Message {
+public class Message {
     private String Username;
     private String Content;
     private LocalDateTime TimeStamp;
