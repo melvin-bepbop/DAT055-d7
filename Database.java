@@ -239,5 +239,4 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
         }
         return messages;
     }
-
 }

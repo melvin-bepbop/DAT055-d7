@@ -6,7 +6,7 @@ public class AccesibleChannels {
     public AccesibleChannels(){
         channels = Database.GetAllChannels();
     }
-    
+
     public LinkedList<Channel> getChannels() {
         return channels;
     }
