@@ -20,6 +20,14 @@ CREATE TABLE UserInActiveChannel(
     FOREIGN KEY (name) REFERENCES Users(username),
     FOREIGN KEY (Channel) REFERENCES Channel(name)
 );
+CREATE TABLE UsersInChannel(
+    user TEXT,
+    channel TEXT,
+    PRIMARY KEY(user, channel),
+    FOREIGN KEY (name) REFERENCES Users(username),
+    FOREIGN KEY (Channel) REFERENCES Channel(name)
+);
+
 /*CREATE TABLE AdminInChannel(
     User TEXT References UsersInChannel(User),
     Channel TEXT References UsersInChannel(Channel),

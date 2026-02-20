@@ -129,6 +129,28 @@ public class Database {
         }
         return Channels;
     }
+public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
+        LinkedList<Channel> Channels = new LinkedList<>();
+        String sql = "Select name from UsersInChannel where user = ?";
+        try{
+            PreparedStatement insertStmt = conn.prepareStatement(sql);
+            insertStmt.setString(1, user);
+
+            try(ResultSet rs = insertStmt.executeQuery()){
+                while (rs.next()) {
+                    Channels.add(GetChannel(rs.getString("name")));                    
+                }
+            } catch (SQLException e) {
+                System.out.println("Error getting info from a channel: " + e.getMessage());
+            }
+            
+
+        } catch (SQLException e) {
+            System.out.println("Error getting channels: " + e.getMessage());
+        }
+        return Channels;
+    }
+
     public static void AddChannel(String channelName){
         try {
             String sql = "INSERT INTO Channel(name, Created_at) VALUES (?,?)";

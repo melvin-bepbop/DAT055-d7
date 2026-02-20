@@ -89,7 +89,7 @@ SwingUtilities.invokeLater(() -> {
 }
 
 public static void main(String[] args) {
-    SwingUtilities.invokeLater(() -> {String[] channels = {"weather manipulation", "baby eating", "kiddie pics"};
+    SwingUtilities.invokeLater(() -> {String[] channels = {"tjo", "hej", "hello"};
     GUI myChat = new GUI(channels);
     // Test a couple messages
     myChat.addMessage("Epstien", "One pizza please", "4:45 PM", false);
