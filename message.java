@@ -7,11 +7,12 @@ public class message {
     private String type;
 
 
-    public message(String user, String cont, String type){
+    public message(String user, String cont, String type, String Channel){
         this.Username = user;
         this.Content = cont;
         this.TimeStamp = LocalDateTime.now();
         this.type = type;
+        Database.AddMessage(user, TimeStamp, Channel, type, cont);
     }
     public message(String user, String cont, String type, LocalDateTime time){
         this.Username = user;
