@@ -1,11 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.LinkedList;
 
 // Main class
 public class GUI {
  private JPanel chatHistoryPanel;
  private JScrollPane scrollPane;
  private JPanel channelListPanel;
+ private LinkedList<JButton> ChannelButtons = new LinkedList<>();
     // Main driver method
     public GUI(String[] channels)
     {
@@ -26,6 +28,7 @@ public class GUI {
             chanBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40)); // Makes button fill width
             channelListPanel.add(chanBtn);
             channelListPanel.add(Box.createVerticalStrut(5)); // Space between buttons
+            this.ChannelButtons.add(chanBtn);
         }
 
         JScrollPane channelScroll = new JScrollPane(channelListPanel);
@@ -46,7 +49,7 @@ public class GUI {
         frame.add(channelScroll, BorderLayout.WEST);
             // making the frame visible
             frame.setVisible(true);
-        }
+    }
     public void addMessage(String user, String text, String time, boolean isMe) {
         JPanel bubble = new JPanel();
         bubble.setLayout(new BorderLayout());

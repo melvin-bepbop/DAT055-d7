@@ -10,6 +10,7 @@ public class Model {
     public Model(User user, Channel channel){
         this.ActiveChannel = channel;
         this.ActiveUser = user;
+        this.accesibleChannels = new AccesibleChannels();
         this.MsgHistoryInChannels.add(new MessagesInChannel(channel));
     }
     public void addMessage(String content, String type){
