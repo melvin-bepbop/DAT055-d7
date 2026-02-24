@@ -9,7 +9,7 @@ public class GUI {
  private JPanel channelListPanel;
  private LinkedList<JButton> ChannelButtons = new LinkedList<>();
     // Main driver method
-    public GUI(String[] channels)
+public GUI(String[] channels)
     {
      
         JFrame frame = new JFrame("This cord");
@@ -49,55 +49,67 @@ public class GUI {
         frame.add(channelScroll, BorderLayout.WEST);
             // making the frame visible
             frame.setVisible(true);
-    }
-    public void addMessage(String user, String text, String time, boolean isMe) {
-        JPanel bubble = new JPanel();
-        bubble.setLayout(new BorderLayout());
-        bubble.setOpaque(false);
-        bubble.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        JPanel content = new JPanel();
-        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        }
+  public void addMessage(String user, String text, String time, boolean isMe) {
+    JPanel bubble = new JPanel();
+    bubble.setLayout(new BorderLayout());
+    bubble.setOpaque(false);
+    bubble.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+    JPanel content = new JPanel();
+    content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
     content.setBackground(isMe ? new Color(173, 216, 230) : Color.LIGHT_GRAY);
-        content.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
-        JTextArea textLabel = new JTextArea(text);
-            textLabel.setLineWrap(true);            // Wrap text to next line
-            textLabel.setWrapStyleWord(true);       // Don't break words in half
-            textLabel.setEditable(false);           // Make it read-only
-            textLabel.setOpaque(false);             // Make background transparent (shows bubble color)
-            textLabel.setColumns(20);               // Limits the width naturally
-            textLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-            textLabel.setSize(textLabel.getPreferredSize());
+    content.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+
+    JTextArea textLabel = new JTextArea(text);
+    textLabel.setLineWrap(true);
+    textLabel.setWrapStyleWord(true);
+    textLabel.setEditable(false);
+    textLabel.setOpaque(false);
+    textLabel.setColumns(20);
+    textLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+    textLabel.setSize(textLabel.getPreferredSize());
 
     JLabel userLabel = new JLabel(user + " (" + time + ")");
 
-        // Alignment: Right for "Me", Left for "Them"
-        content.add(userLabel);
-        content.add(textLabel);
-        if (isMe) {
-            bubble.add(content, BorderLayout.EAST);
-        } else {
-            bubble.add(content, BorderLayout.WEST);
-        }
-    bubble.setMaximumSize(new Dimension(Integer.MAX_VALUE, bubble.getPreferredSize().height));
-    content.setMaximumSize(content.getPreferredSize());   
-    chatHistoryPanel.add(bubble);
-        chatHistoryPanel.add(Box.createVerticalStrut(10)); // Space between messages
-        
+    content.add(userLabel);
+    content.add(textLabel);
 
-        chatHistoryPanel.revalidate();
-        chatHistoryPanel.repaint();
+    if (isMe) {
+        bubble.add(content, BorderLayout.EAST);
+    } else {
+        bubble.add(content, BorderLayout.WEST);
+    }
+
+    bubble.setMaximumSize(new Dimension(Integer.MAX_VALUE, bubble.getPreferredSize().height));
+    content.setMaximumSize(content.getPreferredSize());
+
+    chatHistoryPanel.add(bubble);
+    chatHistoryPanel.add(Box.createVerticalStrut(10));
+
+    chatHistoryPanel.revalidate();
+    chatHistoryPanel.repaint();
+
     SwingUtilities.invokeLater(() -> {
         scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
     });
-    }
+}
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {String[] channels = {"tjo", "hej", "hello"};
-        GUI myChat = new GUI(channels);
-        // Test a couple messages
-        myChat.addMessage("Epstien", "One pizza please", "4:45 PM", false);
-        myChat.addMessage("Diddy", "baby oil", "4:46 PM", true);
+public void clearChat() {
+    chatHistoryPanel.removeAll();
+    chatHistoryPanel.revalidate();
+    chatHistoryPanel.repaint();
+    SwingUtilities.invokeLater(() -> {
+        scrollPane.getVerticalScrollBar().setValue(0);
     });
-    }
+}
 
+public static void main(String[] args) {
+    SwingUtilities.invokeLater(() -> {
+        String[] channels = {"General", "Random", "Dev"};
+        GUI myChat = new GUI(channels);
+        myChat.addMessage("User1", "Hello world!", "4:45 PM", false);
+        myChat.addMessage("Me", "Hey there!", "4:46 PM", true);
+    });
+}
 }
