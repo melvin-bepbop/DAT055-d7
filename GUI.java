@@ -8,6 +8,9 @@ public class GUI {
     private JScrollPane scrollPane;
     private JPanel channelListPanel;
     private LinkedList<JButton> ChannelButtons = new LinkedList<>();
+    private JTextField inputField;
+    private JButton sendButton;
+    private JButton imageButton;
 
     // Main driver method
     public GUI(String[] channels) {
@@ -42,9 +45,9 @@ public class GUI {
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new BorderLayout());
         
-        JTextField inputField = new JTextField();
-        JButton sendButton = new JButton("Send");
-        JButton imageButton = new JButton("Image");
+        inputField = new JTextField();
+        sendButton = new JButton("Send");
+        imageButton = new JButton("Image");
 
         // Create a container for BOTH buttons to sit on the East side
         JPanel buttonContainer = new JPanel();
@@ -125,13 +128,25 @@ public class GUI {
             scrollPane.getVerticalScrollBar().setValue(0);
         });
     }
+public String getInputText() {
+    return inputField.getText();
+}
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            String[] channels = {"General", "Random", "Dev"};
-            GUI myChat = new GUI(channels);
-            myChat.addMessage("User1", "Hello world!", "4:45 PM", false);
-            myChat.addMessage("Me", "Hey there!", "4:46 PM", true);
-        });
-    }
+public void clearInputField() {
+    inputField.setText("");
+}
+
+public JButton getSendButton() {
+    return sendButton;
+}
+public JButton getImageButton() {
+    return imageButton;
+}
+
+public JTextField getInputField() {
+    return inputField;
+}
+public LinkedList<JButton> getChannelButtons() {
+    return this.ChannelButtons;
+}
 }
