@@ -7,7 +7,7 @@ public class GUI {
  private JScrollPane scrollPane;
  private JPanel channelListPanel;
     // Main driver method
-    public GUI(String[] channels)
+public GUI(String[] channels)
     {
      
         JFrame frame = new JFrame("This cord");
@@ -87,7 +87,19 @@ SwingUtilities.invokeLater(() -> {
     scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
 });
 }
-
+public void clearChat() {
+    // 1. Remove all message bubbles and struts
+    chatHistoryPanel.removeAll();
+    
+    // 2. VERY IMPORTANT: Tell Swing the UI has changed
+    chatHistoryPanel.revalidate();
+    chatHistoryPanel.repaint();
+    
+    // 3. Reset the scroll bar to the top
+    SwingUtilities.invokeLater(() -> {
+        scrollPane.getVerticalScrollBar().setValue(0);
+    });
+}
 public static void main(String[] args) {
     SwingUtilities.invokeLater(() -> {String[] channels = {"weather manipulation", "baby eating", "kiddie pics"};
     GUI myChat = new GUI(channels);
