@@ -11,10 +11,18 @@ public class MessagesInChannel {
         this.Messages = Database.GetAllMessagesInChannel(channel.getChannelName());
         this.LastUpdated = LocalDateTime.now();
     }
-    public void UpdateMessageList(){
+    public LinkedList<message> GetNewMessages(){
         LinkedList<message> newMessages = Database.GetNewMessagesInChannelFromTimeStamp(this.channel.getChannelName(), LastUpdated);
+        LastUpdated = LocalDateTime.now();
+        return newMessages;
+    }
+    public void updateMessages(LinkedList<message> newMessages){
         for(message mes : newMessages){
             this.Messages.add(mes);
         }
     }
+    public Channel getChannel() {
+        return channel;
+    }
+    
 }
