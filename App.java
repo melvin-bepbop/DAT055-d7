@@ -2,6 +2,7 @@ import javax.swing.SwingUtilities;
 import java.util.LinkedList;
 
 public class App {
+    private static LoginController loginController;
     public static void main(String[] args) {
         // 1. Connect to the Postgres Database
         Database.connect();
@@ -9,13 +10,12 @@ public class App {
         // 2. Run the UI safely on the Event Dispatch Thread
         SwingUtilities.invokeLater(() -> {
             
-            // 3. Initialize the User 
-            User currentUser = new User("TestUseyk", "Password123"); 
+
             // Skapa inloggningsfönstret
             LoginView loginView = new LoginView();
             
             // Skapa controllern och bestäm vad som ska hända när inloggningen lyckas
-            LoginController loginController = new LoginController(loginView, () -> {
+            loginController = new LoginController(loginView, () -> {
                 
                 // --- CHATTFASEN STARTAR (Detta körs bara om login lyckas) ---
                 
