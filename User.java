@@ -8,6 +8,10 @@ public User(String username, String password) {
         this.password = password;
     } 
 }
+public User(String username, String password, boolean isExistingUser) {
+        this.username = username;
+        this.password = password;
+    }
     public String getUsername() {
         return username;
     }
