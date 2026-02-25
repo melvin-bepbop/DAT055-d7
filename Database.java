@@ -239,4 +239,17 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
         }
         return messages;
     }
+    //Försök logga in en användare
+    public static boolean loginUser(String username, String password) {
+        String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next(); // True om användaren och lösenordet matchar!
+        } catch (SQLException e) {
+            System.err.println("Login error: " + e.getMessage());
+            return false;
+        }
+    }
 }
