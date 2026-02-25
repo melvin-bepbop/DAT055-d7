@@ -119,7 +119,57 @@ public class GUI {
             scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
         });
     }
+    public void addImageMessage(String user, ImageIcon imageIcon, String time, boolean isMe) {
+        JPanel bubble = new JPanel();
+        bubble.setLayout(new BorderLayout());
+        bubble.setOpaque(false);
+        bubble.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setBackground(isMe ? new Color(173, 216, 230) : Color.LIGHT_GRAY);
+        content.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+
+        JLabel userLabel = new JLabel(user + " (" + time + ")");
+
+        // --- IMAGE RESIZING LOGIC ---
+        // We don't want huge images breaking the chat window!
+        // This shrinks images down if they are wider than 250 pixels.
+        Image rawImage = imageIcon.getImage();
+        int maxWidth = 250;
+        if (imageIcon.getIconWidth() > maxWidth) {
+            // Calculate the new height to keep the proportions correct
+            int newHeight = (imageIcon.getIconHeight() * maxWidth) / imageIcon.getIconWidth();
+            Image scaledImage = rawImage.getScaledInstance(maxWidth, newHeight, Image.SCALE_SMOOTH);
+            imageIcon = new ImageIcon(scaledImage);
+        }
+        
+        // Put the image inside a JLabel so it can be drawn on the screen
+        JLabel imageLabel = new JLabel(imageIcon);
+
+        content.add(userLabel);
+        content.add(Box.createVerticalStrut(5)); // Adds a tiny gap between name and image
+        content.add(imageLabel);
+
+        if (isMe) {
+            bubble.add(content, BorderLayout.EAST);
+        } else {
+            bubble.add(content, BorderLayout.WEST);
+        }
+
+        bubble.setMaximumSize(new Dimension(Integer.MAX_VALUE, bubble.getPreferredSize().height));
+        content.setMaximumSize(content.getPreferredSize());
+
+        chatHistoryPanel.add(bubble);
+        chatHistoryPanel.add(Box.createVerticalStrut(10));
+
+        chatHistoryPanel.revalidate();
+        chatHistoryPanel.repaint();
+
+        SwingUtilities.invokeLater(() -> {
+            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+        });
+    }
     public void clearChat() {
         chatHistoryPanel.removeAll();
         chatHistoryPanel.revalidate();
