@@ -7,6 +7,7 @@ public class chatController {
     public chatController(Model model, chatView chatview, User user){
         this.model = model;
         this.chatview = chatview;
+        this.user = user;
         
     }
     public void updateMessagesInChannel(){
@@ -17,5 +18,6 @@ public class chatController {
     }
     public void sendMessageToDatabase(String Content, String type){
         model.addMessage(Content, type);
+        updateMessagesInChannel();
     }
 }

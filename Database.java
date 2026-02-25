@@ -58,7 +58,7 @@ public class Database {
         try {
             // 1. Remove them from WHATEVER channel they are in right now
             // (If they aren't in one, this line just does nothing. No error!)
-            String deleteSql = "DELETE FROM UserInActiveChannel WHERE user = ?";
+            String deleteSql = "DELETE FROM UserInActiveChannel WHERE username = ?";
             PreparedStatement deleteStmt = conn.prepareStatement(deleteSql);
             deleteStmt.setString(1, username);
             deleteStmt.executeUpdate();
@@ -75,7 +75,7 @@ public class Database {
 
 
             // Add them to the new channel
-            String insertSql = "INSERT INTO UserInActiveChannel (user, channel) VALUES (?, ?)";
+            String insertSql = "INSERT INTO UserInActiveChannel (username, channel) VALUES (?, ?)";
             PreparedStatement insertStmt = conn.prepareStatement(insertSql);
             insertStmt.setString(1, username);
             insertStmt.setString(2, channelName);
@@ -131,7 +131,7 @@ public class Database {
     }
 public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
         LinkedList<Channel> Channels = new LinkedList<>();
-        String sql = "Select name from UsersInChannel where user = ?";
+        String sql = "SELECT channel AS name FROM UsersInChannel WHERE username = ?";
         try{
             PreparedStatement insertStmt = conn.prepareStatement(sql);
             insertStmt.setString(1, user);
