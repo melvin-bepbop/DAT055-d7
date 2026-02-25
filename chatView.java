@@ -16,7 +16,7 @@ public class chatView {
 
     public void addMessageToDisplay(message msg, User user){
         // Reminder: In Java, use .equals() for strings, not ==
-        if("text".equals(msg.getType())){
+        if(msg.getType().equals("text")){
             boolean isMe = user.getUsername().equals(msg.getUsername());
             gui.addMessage(msg.getUsername(), msg.getContent(), msg.getTimeStamp().toString(), isMe);
         }
