@@ -10,53 +10,50 @@ public class App {
         SwingUtilities.invokeLater(() -> {
             
             // 3. Initialize the User 
-            // Using your constructor: User(String username, String password)
-            // Note: Your constructor will automatically try to insert this into the DB.
-            User currentUser = new User("TestUser", "Password123"); 
+            User currentUser = new User("TestUsey", "Password123"); 
 
-            // 4. Determine the starting Channel
-            // We need a Channel object to pass into the Model. 
-            // We can just create a default one for startup.
-            Channel startingChannel = new Channel("General");
+            // 4. Initialize the Model with a temporary placeholder channel
+            // We just need the Model built so we can ask it for the user's actual channels
+            Channel tempChannel = new Channel("Loading...");
+            Model model = new Model(currentUser, tempChannel); 
 
-            // 5. Initialize the Model 
-            // Using your constructor: Model(User user, Channel channel)
-            Model model = new Model(currentUser, startingChannel); 
-
-            // 6. Fetch the initial channels to build the GUI
-            // Your model already creates an AccesibleChannels instance, so we can use it!
+            // 5. Fetch the REAL channels for this user from the database
             AccesibleChannels accessible = model.getAccesibleChannels();
             LinkedList<Channel> channelList = accessible.getChannels();
             
-            // Convert Channel objects to a String array for the GUI
+            // 6. Set the real starting channel (the first one in their list)
+            if (!channelList.isEmpty()) {
+                Channel realStartingChannel = channelList.get(0);
+                // Force the Model to switch to this real channel object
+                model.changeChannel(realStartingChannel);
+            } else {
+                System.out.println("Warning: This user has no assigned channels!");
+            }
+
+            // 7. Convert Channel objects to a String array for the GUI sidebar
             String[] channelNames = new String[channelList.size()];
             for (int i = 0; i < channelList.size(); i++) {
                 channelNames[i] = channelList.get(i).getChannelName();
             }
 
-            // 7. Initialize GUI 
-            // Using the exact variable name you requested
+            // 8. Initialize GUI 
             GUI mygui = new GUI(channelNames);
 
-            // 8. Initialize the Views
-            // Using your exact constructors from chatView.java and channelView.java
+            // 9. Initialize the Views
             chatView cView = new chatView(mygui);
 
-            // 9. Initialize the Controllers
-            // Using your exact constructors from chatController.java and channelController.java
+            // 10. Initialize the Controllers
             chatController chatCtrl = new chatController(model, cView, currentUser);
             channelController chanCtrl = new channelController(model);
             
-            // 10. Plug the controller into the view
+            // 11. Plug the controller into the chatView
             cView.setController(chatCtrl);
 
-            // 11. Initialize channelView
+            // 12. Initialize channelView and plug in the chatController
             channelView chanView = new channelView(chanCtrl, mygui);
-           
-            // This lets the channel buttons refresh the chat!
             chanView.setChatController(chatCtrl);
 
-            // 12. Load the initial messages into the GUI for the starting channel
+            // 13. Load the initial messages into the GUI for the starting channel
             chatCtrl.updateMessagesInChannel();
         });
     }
