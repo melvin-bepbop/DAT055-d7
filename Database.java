@@ -203,7 +203,7 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
                     String user = rs.getString("username");
                     java.sql.Timestamp sqlTime = rs.getTimestamp("time");
                     LocalDateTime javaTime = sqlTime.toLocalDateTime();                    
-                    String type = rs.getString("channel");
+                    String type = rs.getString("type");
                     String content = rs.getString("content");
                     messages.add(new message(user, content, type, javaTime));               
                 }

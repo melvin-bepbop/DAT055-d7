@@ -10,7 +10,7 @@ public class App {
         SwingUtilities.invokeLater(() -> {
             
             // 3. Initialize the User 
-            User currentUser = new User("TestUsey", "Password123"); 
+            User currentUser = new User("TestUseyk", "Password123"); 
 
             // 4. Initialize the Model with a temporary placeholder channel
             // We just need the Model built so we can ask it for the user's actual channels
