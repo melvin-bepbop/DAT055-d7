@@ -11,6 +11,16 @@ public class App {
             
             // 3. Initialize the User 
             User currentUser = new User("TestUseyk", "Password123"); 
+            // Skapa inloggningsfönstret
+            LoginView loginView = new LoginView();
+            
+            // Skapa controllern och bestäm vad som ska hända när inloggningen lyckas
+            LoginController loginController = new LoginController(loginView, () -> {
+                
+                // --- CHATTFASEN STARTAR (Detta körs bara om login lyckas) ---
+                
+                // 3. Hämta den inloggade användaren från LoginControllern
+                User currentUser = loginController.getLoggedInUser();
 
             // 4. Initialize the Model with a temporary placeholder channel
             // We just need the Model built so we can ask it for the user's actual channels
@@ -56,5 +66,7 @@ public class App {
             // 13. Load the initial messages into the GUI for the starting channel
             chatCtrl.updateMessagesInChannel();
         });
-    }
+        loginView.show();
+    });
+}
 }
