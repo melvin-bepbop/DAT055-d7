@@ -6,7 +6,7 @@ public class message {
     private LocalDateTime TimeStamp;
     private String type;
 
-    //for sending/adding messages
+    //for sending
     public message(String user, String cont, String type, String Channel){
         this.Username = user;
         this.Content = cont;
@@ -14,7 +14,7 @@ public class message {
         this.type = type;
         Database.AddMessage(user, TimeStamp, Channel, type, cont);
     }
-    //for loading old messages
+    //for loading
     public message(String user, String cont, String type, LocalDateTime time){
         this.Username = user;
         this.Content = cont;

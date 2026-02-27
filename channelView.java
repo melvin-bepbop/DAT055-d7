@@ -4,23 +4,20 @@ import javax.swing.JButton;
 
 public class channelView {
     private channelController chnlctrl;
-    private chatController chatCtrl; // We need this to refresh the chat!
+    private chatController chatCtrl;
     private GUI gui;
 
-    // We take the Channel Controller and GUI in the constructor
     public channelView(channelController controller, GUI gui) {
         this.chnlctrl = controller;
         this.gui = gui;
     }
 
-    // THE SETTER TRICK: Inject the chatController later
     public void setChatController(chatController chatCtrl) {
         this.chatCtrl = chatCtrl;
-        setupListeners(); // Now that we have everything, turn on the buttons!
+        setupListeners();
     }
 
     private void setupListeners() {
-    // Loop through every channel button in the GUI
     for (int i = 0; i < gui.getChannelButtons().size(); i++) {
         JButton btn = gui.getChannelButtons().get(i);
         
@@ -28,11 +25,9 @@ public class channelView {
             String targetName = btn.getText();
             System.out.println("Switching to channel: " + targetName);
 
-            // 1. Get the list of existing channels from the database/model
             AccesibleChannels accessible = chnlctrl.GetAllChannels();
             Channel targetChannel = null;
 
-            // 2. Find the exact object that matches the button's name
             for (Channel c : accessible.getChannels()) {
                 if (c.getChannelName().equals(targetName)) {
                     targetChannel = c;
@@ -40,13 +35,12 @@ public class channelView {
                 }
             }
 
-            // 3. If we found it, switch to it!
             if (targetChannel != null) {
-                gui.clearChat(); // Clear the screen
-                chnlctrl.ChangeChannel(targetChannel); // Pass the EXISTING object
+                gui.clearChat(); 
+                chnlctrl.ChangeChannel(targetChannel); 
                 
                 if (chatCtrl != null) {
-                    chatCtrl.updateMessagesInChannel(); // Load the new messages
+                    chatCtrl.updateMessagesInChannel();
                 }
             } else {
                 System.out.println("Error: Could not find channel object for " + targetName);

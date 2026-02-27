@@ -37,8 +37,6 @@ public class GUI {
         channelScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         channelScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        // --- UPDATED LAYOUT LOGIC ---
-        
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(scrollPane, BorderLayout.CENTER);
 
@@ -49,17 +47,14 @@ public class GUI {
         sendButton = new JButton("Send");
         imageButton = new JButton("Image");
 
-        // Create a container for BOTH buttons to sit on the East side
         JPanel buttonContainer = new JPanel();
         buttonContainer.setLayout(new BoxLayout(buttonContainer, BoxLayout.X_AXIS));
         
-        // Add components to the button container with a gap between them
         buttonContainer.add(Box.createHorizontalStrut(10)); // Gap before the buttons
         buttonContainer.add(imageButton);
         buttonContainer.add(Box.createHorizontalStrut(5));  // Gap between Image and Send
         buttonContainer.add(sendButton);
 
-        // Add the field to center and the button group to the east
         inputPanel.add(inputField, BorderLayout.CENTER);
         inputPanel.add(buttonContainer, BorderLayout.EAST);
         
@@ -69,8 +64,6 @@ public class GUI {
 
         frame.add(channelScroll, BorderLayout.WEST); 
         frame.add(rightPanel, BorderLayout.CENTER); 
-
-        // --- END UPDATED LAYOUT LOGIC ---
 
         frame.setVisible(true);
     }
@@ -132,23 +125,17 @@ public class GUI {
 
         JLabel userLabel = new JLabel(user + " (" + time + ")");
 
-        // --- IMAGE RESIZING LOGIC ---
-        // We don't want huge images breaking the chat window!
-        // This shrinks images down if they are wider than 250 pixels.
         Image rawImage = imageIcon.getImage();
         int maxWidth = 250;
         if (imageIcon.getIconWidth() > maxWidth) {
-            // Calculate the new height to keep the proportions correct
             int newHeight = (imageIcon.getIconHeight() * maxWidth) / imageIcon.getIconWidth();
             Image scaledImage = rawImage.getScaledInstance(maxWidth, newHeight, Image.SCALE_SMOOTH);
             imageIcon = new ImageIcon(scaledImage);
         }
-        
-        // Put the image inside a JLabel so it can be drawn on the screen
         JLabel imageLabel = new JLabel(imageIcon);
 
         content.add(userLabel);
-        content.add(Box.createVerticalStrut(5)); // Adds a tiny gap between name and image
+        content.add(Box.createVerticalStrut(5)); 
         content.add(imageLabel);
 
         if (isMe) {

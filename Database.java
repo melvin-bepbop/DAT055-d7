@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Database {
-    // Replace 'your_db', 'your_user', and 'your_pass' with your actual Postgres credentials
     private static final String URL = "jdbc:postgresql://localhost:5432/chat_project";
     private static final String USER = "postgres";
     private static final String PASS = "postgres";
 
     private static Connection conn;
 
-    // Connect to the Postgres Database
+    // Connect to Postgres 
     public static void connect() {
         try {
             conn = DriverManager.getConnection(URL, USER, PASS);
@@ -20,8 +19,6 @@ public class Database {
             System.err.println("Connection Error: " + e.getMessage());
         }
     }
-
-    // CHECK FOR UNIQUE USERNAME
     public static boolean isUsernameTaken(String username) {
         String sql = "SELECT username FROM Users WHERE username = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -32,32 +29,25 @@ public class Database {
             return true; 
         }
     }
-    //add user to user list
     public static boolean createUser(String username, String password) {
     if (isUsernameTaken(username)) {
-        return false; // Tells the constructor: "Stop! Name is taken."
+        return false;
     }
 
-    // 2. The SQL attempt
     String sql = "INSERT INTO Users(username, password) VALUES(?, ?)";
     try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
         pstmt.setString(1, username);
         pstmt.setString(2, password);
         
         pstmt.executeUpdate();
-        return true; // Tells the constructor: "Success! Go ahead."
+        return true;
         
     } catch (SQLException e) {
-        // We don't print here to avoid "double errors"
-        // We just return false because the save failed
         return false;
     }
 }
-    //remove user from channel member list
     public static void UserLeaveChannel(String username, String channelName) {
         try {
-            // 1. Remove them from WHATEVER channel they are in right now
-            // (If they aren't in one, this line just does nothing. No error!)
             String deleteSql = "DELETE FROM UserInActiveChannel WHERE username = ?";
             PreparedStatement deleteStmt = conn.prepareStatement(deleteSql);
             deleteStmt.setString(1, username);
@@ -69,12 +59,8 @@ public class Database {
             System.out.println("Error leaving channel: " + e.getMessage());
         }
     }
-    //add user to chennel list 
     public static void UserJoinChannel(String username, String channelName) {
         try {
-
-
-            // Add them to the new channel
             String insertSql = "INSERT INTO UserInActiveChannel (username, channel) VALUES (?, ?)";
             PreparedStatement insertStmt = conn.prepareStatement(insertSql);
             insertStmt.setString(1, username);
@@ -91,7 +77,6 @@ public class Database {
         Channel channel = new Channel();
         String insertSql = "SELECT * FROM Channel WHERE name = ?";
         try {
-            // Get the channel
             PreparedStatement insertStmt = conn.prepareStatement(insertSql);
             insertStmt.setString(1, channelname);
             System.out.println("Got channel: "+ channelname);
@@ -185,13 +170,6 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
             System.out.println("Error creating channel: " + e.getMessage());
         }
     }
-    /*
-    username TEXT References Users(username),
-    time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    channel  TEXT References Channel(name), 
-    type TEXT CHECK (type in ('text', 'image')),
-    content TEXT NOT NULL,
-    */
     public static LinkedList<message> GetAllMessagesInChannel(String channel){
         LinkedList<message> messages = new LinkedList<>();
         String sql = "Select * from message where Channel = ?";
@@ -246,7 +224,7 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
             pstmt.setString(1, username);
             pstmt.setString(2, password);
             ResultSet rs = pstmt.executeQuery();
-            return rs.next(); // True om användaren och lösenordet matchar!
+            return rs.next(); // True om användaren och lösenordet matchar
         } catch (SQLException e) {
             System.err.println("Login error: " + e.getMessage());
             return false;

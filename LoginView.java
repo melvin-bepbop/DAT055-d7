@@ -12,7 +12,7 @@ public class LoginView {
         frame = new JFrame("Login - This cord");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(300, 200);
-        frame.setLocationRelativeTo(null); // Centrerar fönstret på skärmen
+        frame.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -39,10 +39,9 @@ public class LoginView {
 
     public void hide() {
         frame.setVisible(false);
-        frame.dispose(); // Stänger och frigör minne
+        frame.dispose();
     }
 
-    // Getters
     public String getUsername() { return usernameField.getText(); }
     public String getPassword() { return new String(passwordField.getPassword()); }
     public JButton getLoginButton() { return loginButton; }

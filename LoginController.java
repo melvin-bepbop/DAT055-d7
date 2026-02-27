@@ -3,9 +3,8 @@ import java.awt.event.ActionListener;
 public class LoginController {
     private LoginView view;
     
-    // Vi skickar in ett "Callback" (Runnable) så att vi vet vad vi ska göra när inloggningen lyckas
     private Runnable onLoginSuccess; 
-    private User loggedInUser; // Sparar den inloggade användaren så vi kan ge den till App.java
+    private User loggedInUser;
 
     public LoginController(LoginView view, Runnable onLoginSuccess) {
         this.view = view;
@@ -14,7 +13,7 @@ public class LoginController {
     }
 
     private void setupListeners() {
-        // Lyssnare för "Login"-knappen
+        //login user
         view.getLoginButton().addActionListener(e -> {
             String username = view.getUsername();
             String password = view.getPassword();
@@ -24,19 +23,15 @@ public class LoginController {
                 return;
             }
 
-            // Anropa databasen direkt här
             if (Database.loginUser(username, password)) {
-                // Skapa User-objektet, men UTAN att anropa Database.createUser i konstruktorn
-                // OBS! Du kommer behöva justera din User-konstruktor något (se nedan)
                 loggedInUser = new User(username, password, true); 
                 view.hide();
-                onLoginSuccess.run(); // Startar huvudprogrammet!
+                onLoginSuccess.run();
             } else {
                 view.showError("Invalid username or password.");
             }
         });
-
-        // Lyssnare för "Create Account"-knappen
+        //create user
         view.getCreateAccountButton().addActionListener(e -> {
             String username = view.getUsername();
             String password = view.getPassword();

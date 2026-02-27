@@ -17,11 +17,11 @@ public class ClientHandler implements Runnable {
         ) {
           
             while (true) {
-                Message message = (Message) in.readObject();
-                System.out.println("Received: " + message.getText());
+                message message = (message) in.readObject();
+                System.out.println("Received: " + message.getContent());
 
                 // Send response
-                out.writeObject(new Message("Server received: " + message.getText()));
+                out.writeObject(new message("Server received: " + message.getContent());
                 out.flush();
             }
         } catch (EOFException e) {
