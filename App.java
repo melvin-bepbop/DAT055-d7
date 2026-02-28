@@ -4,8 +4,8 @@ import java.util.LinkedList;
 public class App {
     private static LoginController loginController;
     public static void main(String[] args) {
-        // Start database
-        Database.connect();
+        PostgresTranslator myActualDatabase = new PostgresTranslator();
+        myActualDatabase.connect();
 
         //GUI
         SwingUtilities.invokeLater(() -> {
@@ -17,7 +17,7 @@ public class App {
                 //Hämta inloggad användaren
                 User currentUser = loginController.getLoggedInUser();
                 Channel tempChannel = new Channel("Loading...");
-                Model model = new Model(currentUser, tempChannel); 
+                Model model = new Model(currentUser, tempChannel, myActualDatabase); 
 
             //hämta kanalerna
             AccesibleChannels accessible = model.getAccesibleChannels();
@@ -48,8 +48,8 @@ public class App {
             channelView chanView = new channelView(chanCtrl, mygui);
             chanView.setChatController(chatCtrl);
 
-            chatCtrl.updateMessagesInChannel();
-        });
+            chatCtrl.loadChannelHistory();
+        }, myActualDatabase);
         loginView.show();
     });
 }

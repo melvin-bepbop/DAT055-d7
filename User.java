@@ -2,13 +2,8 @@ public class User {
     private String username;
     private String password;
 
+
 public User(String username, String password) {
-    if (Database.createUser(username, password)) {
-        this.username = username;
-        this.password = password;
-    } 
-}
-public User(String username, String password, boolean isExistingUser) {
         this.username = username;
         this.password = password;
     }

@@ -20,4 +20,12 @@ public class chatController {
         model.addMessage(Content, type);
         updateMessagesInChannel();
     }
+    public void loadChannelHistory() {
+        LinkedList<message> history = model.getHistoryForActiveChannel();
+        User currentUser = model.getActiveUser();
+        
+        for (message msg : history) {
+            chatview.addMessageToDisplay(msg, currentUser);
+        }
+    }
 }

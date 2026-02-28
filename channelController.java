@@ -1,4 +1,3 @@
-import java.util.LinkedList;
 
 public class channelController {
     private Model model;
@@ -11,6 +10,9 @@ public class channelController {
     }
     public AccesibleChannels GetAllChannels(){
         return model.getAccesibleChannels();
+    }
+public void createNewGlobalChannel(String newChannelName) {
+        model.createNewGlobalChannel(newChannelName);
     }
 
 }

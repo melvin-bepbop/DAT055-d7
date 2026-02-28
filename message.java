@@ -6,32 +6,24 @@ public class message {
     private LocalDateTime TimeStamp;
     private String type;
 
-    //for sending
-    public message(String user, String cont, String type, String Channel){
+    //For creating a brand new message (auto-sets time to NOW)
+    public message(String user, String cont, String type) {
         this.Username = user;
         this.Content = cont;
-        this.TimeStamp = LocalDateTime.now();
         this.type = type;
-        Database.AddMessage(user, TimeStamp, Channel, type, cont);
-    }
-    //for loading
-    public message(String user, String cont, String type, LocalDateTime time){
-        this.Username = user;
-        this.Content = cont;
-        this.TimeStamp = time;
-        this.type = type;
+        this.TimeStamp = LocalDateTime.now(); 
     }
     
-    public String getUsername() {
-        return Username;
+    //For loading an old message from the database (needs exact time)
+    public message(String user, String cont, String type, LocalDateTime time) {
+        this.Username = user;
+        this.Content = cont;
+        this.type = type;
+        this.TimeStamp = time;
     }
-    public String getContent() {
-        return Content;
-    }
-    public LocalDateTime getTimeStamp() {
-        return TimeStamp;
-    }
-    public String getType() {
-        return type;
-    }
+    
+    public String getUsername() { return Username; }
+    public String getContent() { return Content; }
+    public LocalDateTime getTimeStamp() { return TimeStamp; }
+    public String getType() { return type; }
 }

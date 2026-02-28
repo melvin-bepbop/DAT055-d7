@@ -6,16 +6,19 @@ public class MessagesInChannel {
     private Channel channel;
     private LocalDateTime LastUpdated;
 
-    public MessagesInChannel(Channel channel){
+    public MessagesInChannel(Channel channel, IDatabase db){
         this.channel = channel;
-        this.Messages = Database.GetAllMessagesInChannel(channel.getChannelName());
+        this.Messages = db.GetAllMessagesInChannel(channel.getChannelName());
         this.LastUpdated = LocalDateTime.now();
     }
-    public LinkedList<message> GetNewMessages(){
-        LinkedList<message> newMessages = Database.GetNewMessagesInChannelFromTimeStamp(this.channel.getChannelName(), LastUpdated);
-        LastUpdated = LocalDateTime.now();
-        return newMessages;
-    }
+public LinkedList<message> getNewMessages(IDatabase db) {
+    LinkedList<message> freshMessages = db.GetNewMessagesInChannelFromTimeStamp(this.channel.getChannelName(), LastUpdated);
+    LastUpdated = LocalDateTime.now();
+    
+    this.Messages.addAll(freshMessages); 
+    
+    return freshMessages;
+}
     public void updateMessages(LinkedList<message> newMessages){
         for(message mes : newMessages){
             this.Messages.add(mes);
@@ -23,6 +26,9 @@ public class MessagesInChannel {
     }
     public Channel getChannel() {
         return channel;
+    }
+    public LinkedList<message> getAllCachedMessages() {
+        return this.Messages;
     }
     
 }

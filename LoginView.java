@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class LoginView {
     private JFrame frame;
@@ -54,4 +55,11 @@ public class LoginView {
     public void showMessage(String message) {
         JOptionPane.showMessageDialog(frame, message, "Info", JOptionPane.INFORMATION_MESSAGE);
     }
+    public void addLoginListener(ActionListener listener) {
+    loginButton.addActionListener(listener);
+}
+
+public void addCreateAccountListener(ActionListener listener) {
+    createAccountButton.addActionListener(listener);
+}
 }

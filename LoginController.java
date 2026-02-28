@@ -1,20 +1,22 @@
-import java.awt.event.ActionListener;
+import java.util.LinkedList;
 
 public class LoginController {
     private LoginView view;
     
     private Runnable onLoginSuccess; 
     private User loggedInUser;
+    private IDatabase db;
 
-    public LoginController(LoginView view, Runnable onLoginSuccess) {
+    public LoginController(LoginView view, Runnable onLoginSuccess, IDatabase db) {
         this.view = view;
         this.onLoginSuccess = onLoginSuccess;
+        this.db= db;
         setupListeners();
     }
 
     private void setupListeners() {
         //login user
-        view.getLoginButton().addActionListener(e -> {
+        view.addLoginListener(e -> {
             String username = view.getUsername();
             String password = view.getPassword();
 
@@ -23,8 +25,8 @@ public class LoginController {
                 return;
             }
 
-            if (Database.loginUser(username, password)) {
-                loggedInUser = new User(username, password, true); 
+            if (db.loginUser(username, password)) {
+                loggedInUser = new User(username, password); 
                 view.hide();
                 onLoginSuccess.run();
             } else {
@@ -32,7 +34,7 @@ public class LoginController {
             }
         });
         //create user
-        view.getCreateAccountButton().addActionListener(e -> {
+       view.addCreateAccountListener(e -> {
             String username = view.getUsername();
             String password = view.getPassword();
 
@@ -41,7 +43,12 @@ public class LoginController {
                 return;
             }
 
-            if (Database.createUser(username, password)) {
+            if (db.createUser(username, password)) {
+                //CHANGE IF YOU WANT PRIVATE CHANNELS
+                LinkedList<Channel> allExistingChannels = db.GetAllChannels();
+                for (Channel channel : allExistingChannels) {
+                    db.UserJoinChannel(username, channel.getChannelName());
+                }
                 view.showMessage("Account created! You can now log in.");
             } else {
                 view.showError("Username is already taken.");

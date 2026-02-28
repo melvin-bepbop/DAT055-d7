@@ -3,8 +3,9 @@ import java.util.LinkedList;
 public class AccesibleChannels {
     private LinkedList<Channel> channels;
 
-    public AccesibleChannels(){
-        channels = Database.GetAllChannels();
+
+    public AccesibleChannels(LinkedList<Channel> channels) {
+        this.channels = channels;
     }
 
     public LinkedList<Channel> getChannels() {

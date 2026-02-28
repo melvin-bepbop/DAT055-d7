@@ -1,17 +1,20 @@
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class Database {
-    private static final String URL = "jdbc:postgresql://localhost:5432/chat_project";
-    private static final String USER = "postgres";
-    private static final String PASS = "postgres";
 
-    private static Connection conn;
+public class PostgresTranslator implements IDatabase {
+    
+    private final String URL = "jdbc:postgresql://localhost:5432/chat_project";
+    private final String USER = "postgres";
+    private final String PASS = "postgres";
+
+   
+    private Connection conn;
 
     // Connect to Postgres 
-    public static void connect() {
+    @Override
+    public void connect() {
         try {
             conn = DriverManager.getConnection(URL, USER, PASS);
             System.out.println("Connected to PostgreSQL successfully!");
@@ -19,34 +22,40 @@ public class Database {
             System.err.println("Connection Error: " + e.getMessage());
         }
     }
-    public static boolean isUsernameTaken(String username) {
+    
+    @Override
+    public boolean isUsernameTaken(String username) {
         String sql = "SELECT username FROM Users WHERE username = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
             ResultSet rs = pstmt.executeQuery();
-            return rs.next(); // If rs.next() is true, the user exists
+            return rs.next(); 
         } catch (SQLException e) {
             return true; 
         }
     }
-    public static boolean createUser(String username, String password) {
-    if (isUsernameTaken(username)) {
-        return false;
-    }
+    
+    @Override
+    public boolean createUser(String username, String password) {
+        if (isUsernameTaken(username)) {
+            return false;
+        }
 
-    String sql = "INSERT INTO Users(username, password) VALUES(?, ?)";
-    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-        pstmt.setString(1, username);
-        pstmt.setString(2, password);
-        
-        pstmt.executeUpdate();
-        return true;
-        
-    } catch (SQLException e) {
-        return false;
+        String sql = "INSERT INTO Users(username, password) VALUES(?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            
+            pstmt.executeUpdate();
+            return true;
+            
+        } catch (SQLException e) {
+            return false;
+        }
     }
-}
-    public static void UserLeaveChannel(String username, String channelName) {
+    
+    @Override
+    public void UserLeaveChannel(String username, String channelName) {
         try {
             String deleteSql = "DELETE FROM UserInActiveChannel WHERE username = ?";
             PreparedStatement deleteStmt = conn.prepareStatement(deleteSql);
@@ -59,22 +68,54 @@ public class Database {
             System.out.println("Error leaving channel: " + e.getMessage());
         }
     }
-    public static void UserJoinChannel(String username, String channelName) {
-        try {
-            String insertSql = "INSERT INTO UserInActiveChannel (username, channel) VALUES (?, ?)";
-            PreparedStatement insertStmt = conn.prepareStatement(insertSql);
-            insertStmt.setString(1, username);
-            insertStmt.setString(2, channelName);
-            insertStmt.executeUpdate();
-
-            System.out.println(username + " is now in " + channelName);
-
-        } catch (SQLException e) {
-            System.out.println("Error joining channel: " + e.getMessage());
+   
+    @Override
+public void GrantUserPermissionToChannel(String username, String channelName) {
+    // This query only hits the "Membership" table, not the "Active" table
+    String sql = "INSERT INTO UsersInChannel (username, channel) VALUES (?, ?)";
+    
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, username);
+        stmt.setString(2, channelName);
+        stmt.executeUpdate();
+        
+        // Quietly log success
+        System.out.println("Permission granted: " + username + " -> " + channelName);
+        
+    } catch (SQLException e) {
+        // If the user already has access, we don't want the app to crash or show errors
+        if (e.getSQLState().equals("23505")) { 
+            System.out.println("User " + username + " already has access to " + channelName);
+        } else {
+            System.out.println("Database error during permission grant: " + e.getMessage());
         }
     }
-    public static Channel GetChannel(String channelname){
-        Channel channel = new Channel();
+}
+    @Override
+public void UserJoinChannel(String username, String channelName) {
+    try {
+        // 1. Clear their OLD active channel
+        String deleteOldActive = "DELETE FROM UserInActiveChannel WHERE username = ?";
+        PreparedStatement deleteStmt = conn.prepareStatement(deleteOldActive);
+        deleteStmt.setString(1, username);
+        deleteStmt.executeUpdate();
+
+        // 2. Insert the NEW active channel
+        String insertSql = "INSERT INTO UserInActiveChannel (username, channel) VALUES (?, ?)";
+        PreparedStatement insertStmt = conn.prepareStatement(insertSql);
+        insertStmt.setString(1, username);
+        insertStmt.setString(2, channelName);
+        insertStmt.executeUpdate();
+
+        System.out.println(username + " is now looking at " + channelName);
+
+    } catch (SQLException e) {
+        System.out.println("Error updating active channel: " + e.getMessage());
+    }
+}
+    @Override
+    public Channel GetChannel(String channelname){
+        Channel channel = new Channel("Placeholder"); 
         String insertSql = "SELECT * FROM Channel WHERE name = ?";
         try {
             PreparedStatement insertStmt = conn.prepareStatement(insertSql);
@@ -95,7 +136,9 @@ public class Database {
         }
         return channel;
     }
-    public static LinkedList<Channel> GetAllChannels(){
+    
+    @Override
+    public LinkedList<Channel> GetAllChannels(){
         LinkedList<Channel> Channels = new LinkedList<>();
         String sql = "Select name from Channel";
         try{
@@ -107,14 +150,14 @@ public class Database {
             } catch (SQLException e) {
                 System.out.println("Error getting info from a channel: " + e.getMessage());
             }
-            
-
         } catch (SQLException e) {
             System.out.println("Error getting channels: " + e.getMessage());
         }
         return Channels;
     }
-public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
+    
+    @Override
+    public LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
         LinkedList<Channel> Channels = new LinkedList<>();
         String sql = "SELECT channel AS name FROM UsersInChannel WHERE username = ?";
         try{
@@ -128,15 +171,14 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
             } catch (SQLException e) {
                 System.out.println("Error getting info from a channel: " + e.getMessage());
             }
-            
-
         } catch (SQLException e) {
             System.out.println("Error getting channels: " + e.getMessage());
         }
         return Channels;
     }
 
-    public static void AddChannel(String channelName){
+    @Override
+    public void AddChannel(String channelName){
         try {
             String sql = "INSERT INTO Channel(name, Created_at) VALUES (?,?)";
             PreparedStatement insertStmt = conn.prepareStatement(sql);
@@ -144,14 +186,15 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
             insertStmt.setObject(2, LocalDateTime.now());
             insertStmt.executeUpdate();
 
-            System.out.println(channelName + " is now in  created");
+            System.out.println(channelName + " is now created");
 
         } catch (SQLException e) {
             System.out.println("Error creating channel: " + e.getMessage());
         }
     }
 
-    public static void AddMessage(String userName, LocalDateTime time, String ChannelName, String type, String Content){
+    @Override
+    public void AddMessage(String userName, LocalDateTime time, String ChannelName, String type, String Content){
         try {
             String sql = "INSERT INTO Message(username, time, channel, type, content) VALUES (?,?,?,?,?)";
             PreparedStatement insertStmt = conn.prepareStatement(sql);
@@ -161,16 +204,16 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
             insertStmt.setObject(4, type);
             insertStmt.setObject(5, Content);
 
-
             insertStmt.executeUpdate();
-            System.out.println("Message is now in  created");
-
+            System.out.println("Message is now saved to database");
 
         } catch (SQLException e) {
-            System.out.println("Error creating channel: " + e.getMessage());
+            System.out.println("Error saving message: " + e.getMessage());
         }
     }
-    public static LinkedList<message> GetAllMessagesInChannel(String channel){
+    
+    @Override
+    public LinkedList<message> GetAllMessagesInChannel(String channel){
         LinkedList<message> messages = new LinkedList<>();
         String sql = "Select * from message where Channel = ?";
         try{
@@ -193,7 +236,9 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
         }
         return messages;
     }
-    public static LinkedList<message> GetNewMessagesInChannelFromTimeStamp(String channel, LocalDateTime Timestamp){
+    
+    @Override
+    public LinkedList<message> GetNewMessagesInChannelFromTimeStamp(String channel, LocalDateTime Timestamp){
         LinkedList<message> messages = new LinkedList<>();
         String sql = "Select * from message where Channel = ? AND time > ?";
         try{
@@ -205,7 +250,10 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
                     String user = rs.getString("username");
                     java.sql.Timestamp sqlTime = rs.getTimestamp("time");
                     LocalDateTime javaTime = sqlTime.toLocalDateTime();                    
-                    String type = rs.getString("channel");
+                    
+            
+                    String type = rs.getString("type"); 
+                    
                     String content = rs.getString("content");
                     messages.add(new message(user, content, type, javaTime));               
                 }
@@ -217,8 +265,9 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
         }
         return messages;
     }
-    //Försök logga in en användare
-    public static boolean loginUser(String username, String password) {
+    
+    @Override
+    public boolean loginUser(String username, String password) {
         String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
@@ -229,5 +278,30 @@ public static LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
             System.err.println("Login error: " + e.getMessage());
             return false;
         }
+    }
+@Override
+    public LinkedList<User> GetAllUsers() {
+        LinkedList<User> userList = new LinkedList<>();
+        // Simple SQL to grab everyone in the database
+        String sql = "SELECT username, password FROM Users"; 
+
+        try {
+            // Assuming your connection variable is named 'connection' or 'conn'
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                String fetchedUsername = rs.getString("username");
+                String fetchedPassword = rs.getString("password");
+                
+                // Create a clean User object (our POJO!) and add it to the list
+                User foundUser = new User(fetchedUsername, fetchedPassword);
+                userList.add(foundUser);
+            }
+        } catch (Exception e) {
+            System.out.println("Error fetching all users: " + e.getMessage());
+        }
+
+        return userList;
     }
 }

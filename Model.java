@@ -7,35 +7,33 @@ public class Model {
     private LinkedList<MessagesInChannel> MsgHistoryInChannels = new LinkedList<>();
     private Channel ActiveChannel;
     private User ActiveUser;
-    
     private HashMap<String, Integer> displayedMessageCount = new HashMap<>();
+    private IDatabase db;
 
-    public Model(User user, Channel channel){
+public Model(User user, Channel channel, IDatabase db){
         this.ActiveChannel = channel;
         this.ActiveUser = user;
-        this.accesibleChannels = new AccesibleChannels();
-        this.MsgHistoryInChannels.add(new MessagesInChannel(channel));
+        this.db = db;
+        LinkedList<Channel> myChannels = db.GetAllChannelsWhereUserIn(user.getUsername());
+        this.accesibleChannels = new AccesibleChannels(myChannels);
+        this.MsgHistoryInChannels.add(new MessagesInChannel(channel, db));
     }
 
     public void addMessage(String content, String type){
-        Database.AddMessage(ActiveUser.getUsername(), LocalDateTime.now(), ActiveChannel.getChannelName(), type, content);
+        db.AddMessage(ActiveUser.getUsername(), LocalDateTime.now(), ActiveChannel.getChannelName(), type, content);
     }
 
     //for getting all
-    public LinkedList<message> GetNewMessagesInActiveChannel(){
-        LinkedList<message> allMessages = Database.GetAllMessagesInChannel(ActiveChannel.getChannelName());
-        
-        int alreadyDrawn = displayedMessageCount.getOrDefault(ActiveChannel.getChannelName(), 0);
-        
-        LinkedList<message> newMessages = new LinkedList<>();
-        for (int i = alreadyDrawn; i < allMessages.size(); i++) {
-            newMessages.add(allMessages.get(i));
+public LinkedList<message> GetNewMessagesInActiveChannel() {
+    // 1. Find the folder for the current channel
+    for (MessagesInChannel folder : MsgHistoryInChannels) {
+        if (folder.getChannel().getChannelName().equals(ActiveChannel.getChannelName())) {
+            // 2. Tell the folder to fetch new stuff using our DB toolbox
+            return folder.getNewMessages(this.db);
         }
-        
-        displayedMessageCount.put(ActiveChannel.getChannelName(), allMessages.size());
-        
-        return newMessages;
     }
+    return new LinkedList<>(); // Return empty if channel not found
+}
 
     public void changeChannel(Channel newChannel){
         this.ActiveChannel = newChannel;
@@ -50,8 +48,29 @@ public class Model {
             }
         }
         if(!hasBeenBefore){
-            MsgHistoryInChannels.add(new MessagesInChannel(newChannel));
+            MsgHistoryInChannels.add(new MessagesInChannel(newChannel, db));
         }
+    }
+
+public void createNewGlobalChannel(String newChannelName) {
+    db.AddChannel(newChannelName);
+    
+    LinkedList<User> allUsers = db.GetAllUsers(); 
+    for (User user : allUsers) {
+
+        db.GrantUserPermissionToChannel(user.getUsername(), newChannelName);
+    }
+    db.UserJoinChannel(ActiveUser.getUsername(), newChannelName);
+    Channel newChan = new Channel(newChannelName);
+    this.accesibleChannels.getChannels().add(newChan);
+}
+public LinkedList<message> getHistoryForActiveChannel() {
+        for (MessagesInChannel folder : MsgHistoryInChannels) {
+            if (folder.getChannel().getChannelName().equals(ActiveChannel.getChannelName())) {
+                return folder.getAllCachedMessages(); 
+            }
+        }
+        return new LinkedList<>();
     }
 
     public AccesibleChannels getAccesibleChannels() { return accesibleChannels; }

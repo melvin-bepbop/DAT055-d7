@@ -11,10 +11,11 @@ public class GUI {
     private JTextField inputField;
     private JButton sendButton;
     private JButton imageButton;
-
+    private JButton createChannelButton;
+    private JFrame frame; 
     // Main driver method
     public GUI(String[] channels) {
-        JFrame frame = new JFrame("This cord");
+        frame = new JFrame("This cord");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 500);
 
@@ -24,6 +25,19 @@ public class GUI {
 
         channelListPanel = new JPanel();
         channelListPanel.setLayout(new BoxLayout(channelListPanel, BoxLayout.Y_AXIS));
+
+        createChannelButton = new JButton("Create New Channel");
+        createChannelButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        
+
+        createChannelButton.setBackground(new Color(74,103,65)); 
+        createChannelButton.setForeground(Color.WHITE); 
+        createChannelButton.setFocusPainted(false); 
+        createChannelButton.setOpaque(true); 
+        createChannelButton.setBorderPainted(false); 
+
+        channelListPanel.add(createChannelButton);
+        channelListPanel.add(Box.createVerticalStrut(10)); 
         for (String name : channels) {
             JButton chanBtn = new JButton(name);
             chanBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40)); 
@@ -183,7 +197,26 @@ public JButton getImageButton() {
 public JTextField getInputField() {
     return inputField;
 }
+public JFrame getFrame() {
+    return frame;
+}
 public LinkedList<JButton> getChannelButtons() {
     return this.ChannelButtons;
 }
+public JButton getCreateChannelButton() {
+        return createChannelButton;
+    }
+
+    public JButton addSingleChannelButton(String name) {
+        JButton chanBtn = new JButton(name);
+        chanBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40)); 
+        channelListPanel.add(chanBtn);
+        channelListPanel.add(Box.createVerticalStrut(5)); 
+        this.ChannelButtons.add(chanBtn);
+        
+        channelListPanel.revalidate();
+        channelListPanel.repaint();
+        
+        return chanBtn;
+    }
 }
