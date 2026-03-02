@@ -1,6 +1,6 @@
+package Models;
 
-
-    /**
+/**
      * Adds a user to the active list of this channel.
      * 
      * 

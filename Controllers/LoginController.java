@@ -1,21 +1,28 @@
+package Controllers;
 import java.util.LinkedList;
+
+import Models.User;
+import Services.ChannelService;
+import Services.UserService;
+import Views.LoginView;
 
 public class LoginController {
     private LoginView view;
-    
     private Runnable onLoginSuccess; 
     private User loggedInUser;
-    private IDatabase db;
+    
+    private UserService userService;
+    private ChannelService channelService;
 
-    public LoginController(LoginView view, Runnable onLoginSuccess, IDatabase db) {
+    public LoginController(LoginView view, Runnable onLoginSuccess, UserService userService, ChannelService channelService) {
         this.view = view;
         this.onLoginSuccess = onLoginSuccess;
-        this.db= db;
+        this.userService = userService;
+        this.channelService = channelService;
         setupListeners();
     }
 
     private void setupListeners() {
-        //login user
         view.addLoginListener(e -> {
             String username = view.getUsername();
             String password = view.getPassword();
@@ -25,7 +32,7 @@ public class LoginController {
                 return;
             }
 
-            if (db.loginUser(username, password)) {
+            if (userService.login(username, password)) {
                 loggedInUser = new User(username, password); 
                 view.hide();
                 onLoginSuccess.run();
@@ -33,8 +40,8 @@ public class LoginController {
                 view.showError("Invalid username or password.");
             }
         });
-        //create user
-       view.addCreateAccountListener(e -> {
+
+        view.addCreateAccountListener(e -> {
             String username = view.getUsername();
             String password = view.getPassword();
 
@@ -43,12 +50,10 @@ public class LoginController {
                 return;
             }
 
-            if (db.createUser(username, password)) {
-                //CHANGE IF YOU WANT PRIVATE CHANNELS
-                LinkedList<Channel> allExistingChannels = db.GetAllChannels();
-                for (Channel channel : allExistingChannels) {
-                    db.UserJoinChannel(username, channel.getChannelName());
-                }
+            if (userService.register(username, password)) {
+
+            channelService.handleNewUserPermissions(username);
+                
                 view.showMessage("Account created! You can now log in.");
             } else {
                 view.showError("Username is already taken.");

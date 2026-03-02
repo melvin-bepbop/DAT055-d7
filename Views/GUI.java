@@ -1,8 +1,8 @@
+package Views;
 import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
 
-// Main class
 public class GUI {
     private JPanel chatHistoryPanel;
     private JScrollPane scrollPane;
@@ -13,7 +13,6 @@ public class GUI {
     private JButton imageButton;
     private JButton createChannelButton;
     private JFrame frame; 
-    // Main driver method
     public GUI(String[] channels) {
         frame = new JFrame("This cord");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,9 +63,9 @@ public class GUI {
         JPanel buttonContainer = new JPanel();
         buttonContainer.setLayout(new BoxLayout(buttonContainer, BoxLayout.X_AXIS));
         
-        buttonContainer.add(Box.createHorizontalStrut(10)); // Gap before the buttons
+        buttonContainer.add(Box.createHorizontalStrut(10)); 
         buttonContainer.add(imageButton);
-        buttonContainer.add(Box.createHorizontalStrut(5));  // Gap between Image and Send
+        buttonContainer.add(Box.createHorizontalStrut(5));  
         buttonContainer.add(sendButton);
 
         inputPanel.add(inputField, BorderLayout.CENTER);
