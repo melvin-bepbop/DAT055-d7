@@ -1,16 +1,12 @@
 package Views;
 
 import Models.Message;
-import Utils.ImageUtils;
-import javax.swing.ImageIcon;
 
 public class ImageRenderer implements MessageRenderer {
     @Override
-    public void draw(Message msg, GUI gui, String timestamp, boolean isMe) {
-        // Image-specific replacement logic
-        ImageIcon icon = ImageUtils.decodeBase64ToImage(msg.getContent());
-        if (icon != null) {
-            gui.addImageMessage(msg.getUsername(), icon, timestamp, isMe);
-        }
+    public void draw(Message msg, IChatDisplay display, String timestamp, boolean isMe) {
+        // ZERO GUI LOGIC HERE NOW!
+        // msg.getContent() is the Base64 String. We just pass it straight through.
+        display.addImageMessage(msg.getUsername(), msg.getContent(), timestamp, isMe);
     }
 }

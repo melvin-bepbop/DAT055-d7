@@ -1,9 +1,12 @@
 package Views;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
+import java.io.File; // Added for File chooser
+import Utils.ImageUtils; // Added for Base64 translation
 
-public class GUI {
+public class GUI implements IChatDisplay { // <-- Added 'implements IChatDisplay'
     private JPanel chatHistoryPanel;
     private JScrollPane scrollPane;
     private JPanel channelListPanel;
@@ -13,6 +16,7 @@ public class GUI {
     private JButton imageButton;
     private JButton createChannelButton;
     private JFrame frame; 
+    
     public GUI(String[] channels) {
         frame = new JFrame("This cord");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -28,7 +32,6 @@ public class GUI {
         createChannelButton = new JButton("Create New Channel");
         createChannelButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         
-
         createChannelButton.setBackground(new Color(74,103,65)); 
         createChannelButton.setForeground(Color.WHITE); 
         createChannelButton.setFocusPainted(false); 
@@ -125,6 +128,7 @@ public class GUI {
             scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
         });
     }
+
     public void addImageMessage(String user, ImageIcon imageIcon, String time, boolean isMe) {
         JPanel bubble = new JPanel();
         bubble.setLayout(new BorderLayout());
@@ -170,6 +174,7 @@ public class GUI {
             scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
         });
     }
+
     public void clearChat() {
         chatHistoryPanel.removeAll();
         chatHistoryPanel.revalidate();
@@ -178,33 +183,15 @@ public class GUI {
             scrollPane.getVerticalScrollBar().setValue(0);
         });
     }
-public String getInputText() {
-    return inputField.getText();
-}
 
-public void clearInputField() {
-    inputField.setText("");
-}
-
-public JButton getSendButton() {
-    return sendButton;
-}
-public JButton getImageButton() {
-    return imageButton;
-}
-
-public JTextField getInputField() {
-    return inputField;
-}
-public JFrame getFrame() {
-    return frame;
-}
-public LinkedList<JButton> getChannelButtons() {
-    return this.ChannelButtons;
-}
-public JButton getCreateChannelButton() {
-        return createChannelButton;
-    }
+    public String getInputText() { return inputField.getText(); }
+    public void clearInputField() { inputField.setText(""); }
+    public JButton getSendButton() { return sendButton; }
+    public JButton getImageButton() { return imageButton; }
+    public JTextField getInputField() { return inputField; }
+    public JFrame getFrame() { return frame; }
+    public LinkedList<JButton> getChannelButtons() { return this.ChannelButtons; }
+    public JButton getCreateChannelButton() { return createChannelButton; }
 
     public JButton addSingleChannelButton(String name) {
         JButton chanBtn = new JButton(name);
@@ -218,4 +205,39 @@ public JButton getCreateChannelButton() {
         
         return chanBtn;
     }
+
+    // ======================================================================
+    // --- IChatDisplay INTERFACE IMPLEMENTATIONS (The "Translator" logic) ---
+    // ======================================================================
+
+
+    @Override
+    public void addImageMessage(String username, String base64Data, String time, boolean isMe) {
+        ImageIcon icon = ImageUtils.decodeBase64ToImage(base64Data);
+        if (icon != null) {
+            this.addImageMessage(username, icon, time, isMe); // Maps to your existing logic
+        }
+    }
+
+
+    @Override
+    public File promptUserForImageFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showOpenDialog(this.frame) == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        }
+        return null;
+    }
+
+    @Override
+    public void onSendAction(Runnable action) {
+        this.sendButton.addActionListener(e -> action.run());
+        this.inputField.addActionListener(e -> action.run()); // So "Enter" works too!
+    }
+
+    @Override
+    public void onImageUploadAction(Runnable action) {
+        this.imageButton.addActionListener(e -> action.run());
+    }
+    
 }

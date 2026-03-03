@@ -1,29 +1,25 @@
 package Views;
 
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.JFileChooser;
-
 import Controllers.chatController;
 import Models.User;
 import Models.Message;
 import Utils.ImageUtils;
 
 public class chatView {
-    private GUI gui;
+    private IChatDisplay display; 
     private chatController chatCtrl;
-    
     private final Map<String, MessageRenderer> renderers = new HashMap<>();
 
-    public chatView(GUI gui) {
-        this.gui = gui;
-        
-        renderers.put("text", new TextRenderer());
-        renderers.put("image", new ImageRenderer());
+    public chatView(IChatDisplay display) { 
+        this.display = display;
+    }
+
+    public void registerRenderer(String type, MessageRenderer renderer) {
+        renderers.put(type.toLowerCase(), renderer);
     }
 
     public void setController(chatController chatCtrl) {
@@ -36,14 +32,13 @@ public class chatView {
         String time = msg.getTimeStamp().toString();
 
         MessageRenderer renderer = renderers.get(msg.getType().toLowerCase());
-        
         if (renderer != null) {
-            renderer.draw(msg, gui, time, isMe);
+            renderer.draw(msg, display, time, isMe); 
         }
     }
 
     public void clearChatDisplay() {
-        gui.clearChat(); 
+        display.clearChat(); 
     }
 
     public void displayMessageHistory(LinkedList<Message> history, User activeUser) {
@@ -54,32 +49,27 @@ public class chatView {
     }
 
     private void setupListeners() {
-        // Logic for Text Sending
-        ActionListener sendListener = e -> {
-            String text = gui.getInputField().getText();
+        // --- UPDATED TO MATCH YOUR EXACT INTERFACE NAMES ---
+        
+        // Text Logic
+        display.onSendAction(() -> {
+            String text = display.getInputText();
             if (!text.trim().isEmpty()) {
                 chatCtrl.sendMessageToDatabase(text, "text");
-                gui.getInputField().setText(""); 
+                display.clearInputField(); 
             }
-        };
+        });
 
-        gui.getSendButton().addActionListener(sendListener);
-        gui.getInputField().addActionListener(sendListener);
-
-        // Logic for Image Uploading
-        ActionListener imageUploadListener = e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            int result = fileChooser.showOpenDialog(null); 
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                String base64Image = ImageUtils.encodeFileToBase64(selectedFile);
-                
+        // Image Logic
+        display.onImageUploadAction(() -> {
+            File selectedFile = display.promptUserForImageFile(); // Ask GUI for file
+            
+            if (selectedFile != null) {
+                String base64Image = ImageUtils.encodeFileToBase64(selectedFile); // chatView handles data
                 if (base64Image != null) {
                     chatCtrl.sendMessageToDatabase(base64Image, "image");
                 }
             }
-        };
-
-        gui.getImageButton().addActionListener(imageUploadListener); 
+        });
     }
 }

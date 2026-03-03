@@ -67,13 +67,24 @@ public class App {
                 ClientSession session = new ClientSession(currentUser, startingChannel, accessible);
 
                 // --- C. BUILD THE UI ---
-                String[] channelNames = new String[channelList.size()];
+              String[] channelNames = new String[channelList.size()];
                 for (int i = 0; i < channelList.size(); i++) {
                     channelNames[i] = channelList.get(i).getChannelName();
                 }
                 
                 GUI mygui = new GUI(channelNames);
                 chatView cView = new chatView(mygui);
+
+                // ---> UPDATED LAMBDAS <---
+                cView.registerRenderer("text", (msg, g, time, isMe) -> {
+                    g.addMessage(msg.getUsername(), msg.getContent(), time, isMe);
+                });
+
+                cView.registerRenderer("image", (msg, g, time, isMe) -> {
+                    // No more ImageIcon conversion here! 
+                    // We just pass the Base64 string directly to the interface.
+                    g.addImageMessage(msg.getUsername(), msg.getContent(), time, isMe);
+                });
 
                 // --- D. CREATE CONTROLLERS ---
                 // Notice how they take the Session AND the Services now!
