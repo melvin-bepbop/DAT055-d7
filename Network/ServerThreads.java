@@ -1,4 +1,4 @@
-package Network;
+package Network;/* 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOError;
@@ -32,15 +32,13 @@ public class ServerThreads {
             new Thread(new ClientHandler(clientSocket)).start();
             
         }
-    }
-}
-
 
         Socket socket = new Socket("localhost", 6767);
-        InputStream in = socket.getInputStream();
-        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());         PrintWriter writer = new PrintWriter(out, true); // true = auto-flush
+        InputStream inStream = socket.getInputStream();
+        ObjectInputStream objectInputStreamin = new ObjectInputStream(socket.getInputStream());         
+        PrintWriter writer = new PrintWriter(out, true); // true = auto-flush
         
         String response = reader.readLine();
     }
-}
+}*/
 

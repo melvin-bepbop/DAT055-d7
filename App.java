@@ -26,21 +26,16 @@ public class App {
     private static LoginController loginController;
 
     public static void main(String[] args) {
-        // 1. START THE DATABASE
+        /*
         PostgresTranslator myActualDatabase = new PostgresTranslator();
-        myActualDatabase.registerMessageType("text", (u, c, t) -> new TextMessage(u, c, t));
-        myActualDatabase.registerMessageType("image", (u, c, t) -> new ImageMessage(u, c, t));
-        myActualDatabase.connect();
 
-        // 2. CREATE THE SERVICES (The "Server" logic)
-        // Notice how the Database is passed into the Services, not the UI!
+        myActualDatabase.connect();
+    
         UserService userService = new UserService(myActualDatabase);
-    // 1. Create the rule
         IChannelAccessRule myRule = new GlobalAccessRule();
 
-// 2. Hand it to the Service
         ChannelService channelService = new ChannelService(myActualDatabase, myActualDatabase, myRule);
-        MessageService messageService = new MessageService(myActualDatabase);
+        MessageService messageService = new MessageService(myActualDatabase);*/
 
         // 3. Start the GUI thread
         SwingUtilities.invokeLater(() -> {

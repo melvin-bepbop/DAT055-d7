@@ -3,12 +3,17 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.ArrayList;
 
+import Models.Message;
 import Models.Message;
 
 
 public class ClientHandler implements Runnable {
     private Socket socket;
+    public static ArrayList<ClientHandler> ClientHandlers = new ArrayList<>();
+    private BufferedReader bufferedReader;
+    private BufferedWriter bufferedWriter;
     public static ArrayList<ClientHandler> ClientHandlers = new ArrayList<>();
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
