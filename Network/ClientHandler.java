@@ -3,9 +3,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.ArrayList;
 
-import Models.Message;
 import Models.Message;
 
 
@@ -14,7 +12,6 @@ public class ClientHandler implements Runnable {
     public static ArrayList<ClientHandler> ClientHandlers = new ArrayList<>();
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
-
 
     public ClientHandler(Socket socket) {
         try{
@@ -35,7 +32,6 @@ public class ClientHandler implements Runnable {
         while (socket.isConnected()) {
             try{
                 messageFromClient = bufferedReader.readLine();
-                
                 broadcastMessage(messageFromClient);
             }
             catch(IOException e){
