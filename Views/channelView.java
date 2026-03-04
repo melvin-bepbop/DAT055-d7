@@ -71,4 +71,8 @@ public class channelView {
             }
         });
     }
+    public void AddChannelToSideBar(Channel channel){
+        JButton newBtn = gui.addSingleChannelButton(channel.getChannelName());
+        attachChannelListener(newBtn);
+    }
 }

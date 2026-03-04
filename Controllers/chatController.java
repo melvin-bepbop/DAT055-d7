@@ -5,6 +5,7 @@ import Models.Channel;
 import Models.ClientSession;
 import Models.User;
 import Models.Message;
+import Models.MessagesInChannel;
 import Views.chatView;
 import Network.Client;
 
@@ -32,29 +33,30 @@ public chatController(ClientSession session, chatView chatview, Client networkCl
         User activeUser = session.getActiveUser();
         Channel activeChannel = session.getActiveChannel();
 
-        // 1. Format the request into a String Payload
-        // Example text:  "MSG_SEND|text|Alice|General|Hello everyone!"
-        // Example image: "MSG_SEND|image|Alice|General|Base64String..."
+     
         String payload = "MSG_SEND|" + type + "|" + activeUser.getUsername() + "|" + 
                          activeChannel.getChannelName() + "|" + content;
         
-        // 2. Push it down the network pipe!
+
         networkClient.sendMessage(payload);
-        
-        // NO MORE POLLING! 
-        // We do not check for new messages here. We just wait for the Server
-        // to broadcast this message back to our listenForMessage() thread.
+
     }
 
     public void loadChannelHistory() {
         // Fetch the cached messages from our local Session
         LinkedList<Message> history = session.getHistoryForActiveChannel();
         User currentUser = session.getActiveUser();
-        
+        chatview.clearChatDisplay();
         // Draw them to the screen
         for (Message msg : history) {
             chatview.addMessageToDisplay(msg, currentUser);
         }
+    }
+    public void addChannelHistory(LinkedList<Message> history, Channel channel) {
+        // Fetch the cached messages from our local Session
+        MessagesInChannel msgHis = new MessagesInChannel(channel);
+        msgHis.addMessages(history);
+        session.addChannelHistory(msgHis);
     }
 
     /*public void checkForNewMessages() {

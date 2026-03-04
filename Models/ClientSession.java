@@ -19,20 +19,10 @@ public class ClientSession {
     public AccesibleChannels getAccesibleChannels() { return accesibleChannels; }
     public LinkedList<MessagesInChannel> getMsgHistoryInChannels() { return msgHistoryInChannels; }
 
-    public void changeChannel(Channel newChannel, MessagesInChannel folderForThisChannel) {
+    public void changeChannel(Channel newChannel) {
         this.activeChannel = newChannel; 
-        boolean hasBeenBefore = false;
-        for (MessagesInChannel existingFolder : msgHistoryInChannels) {
-            if(existingFolder.getChannel().getChannelName().equals(newChannel.getChannelName())){ 
-                hasBeenBefore = true;
-                break;
-            }
-        }
-        
-        if(!hasBeenBefore && folderForThisChannel != null){
-            msgHistoryInChannels.add(folderForThisChannel);
-        }
     }
+
 
     public LinkedList<Message> getHistoryForActiveChannel() {
         for (MessagesInChannel folder : msgHistoryInChannels) {
@@ -41,5 +31,8 @@ public class ClientSession {
             }
         }
         return new LinkedList<>(); 
+    }
+    public void addChannelHistory(MessagesInChannel msgInChnl){
+       msgHistoryInChannels.add(msgInChnl); 
     }
 }

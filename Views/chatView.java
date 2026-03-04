@@ -1,6 +1,7 @@
 package Views;
 
 import java.io.File;
+import java.nio.channels.Channel;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,5 +72,8 @@ public class chatView {
                 }
             }
         });
+    }
+    public void changingChannel(Channel targetChannel){
+        chatCtrl.loadChannelHistory();
     }
 }

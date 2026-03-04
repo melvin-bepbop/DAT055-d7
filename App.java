@@ -20,37 +20,60 @@ import Views.LoginView;
 import Views.channelView;
 import Views.chatView;
 import Network.Client;
+import Network.ClientRouter;
+import Network.ClientResponseCommands.GetServersResponse;
+import Network.ClientResponseCommands.LoginResponse;
+import Network.ClientResponseCommands.SignupResponse;
+import Network.NetworkCommands.GetServersCommand;
+import Network.NetworkCommands.LoginCommand;
+import Network.NetworkCommands.SignupCommand;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.util.LinkedList;
 
 public class App {
     private static LoginController loginController;
+    private static Client networkClient;
+    private static ClientRouter clientRouter;
+    private static channelController chanCtrl;
 
     public static void main(String[] args) {
-        /*
-        PostgresTranslator myActualDatabase = new PostgresTranslator();
+        LinkedList<Channel> channelList = new LinkedList<>();
+        AccesibleChannels accessible = new AccesibleChannels(channelList);
+        clientRouter = new ClientRouter();
+        GetServersResponse gsr = new GetServersResponse(chanCtrl);
 
-        myActualDatabase.connect();
-    
-        UserService userService = new UserService(myActualDatabase);
-        IChannelAccessRule myRule = new GlobalAccessRule();
 
-        ChannelService channelService = new ChannelService(myActualDatabase, myActualDatabase, myRule);
-        MessageService messageService = new MessageService(myActualDatabase);*/
+        try{
+            Socket socket = new Socket("localhost", 8080);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            
+            networkClient = new Client(socket, bufferedReader, bufferedWriter, clientRouter, "Guest");
+            
+            networkClient.listenForMessage();
+            
+        } catch (IOException e) {
+            System.err.println("Kunde inte ansluta till servern: " + e.getMessage());
+            return; 
+        }
 
-        // 3. Start the GUI thread
+        ///FIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIX UNDER
+
         SwingUtilities.invokeLater(() -> {
             
             // Create the Login UI
             LoginView loginView = new LoginView();
             
             Runnable onLoginSuccess = () -> {                
-                // --- A. GET LOGGED IN USER ---
                 User currentUser = loginController.getLoggedInUser();
                 
-                // --- B. FETCH DATA FROM SERVER & CREATE SESSION ---
-                LinkedList<Channel> channelList = channelService.loadUserChannels(currentUser);
-                AccesibleChannels accessible = new AccesibleChannels(channelList);
+                networkClient.sendMessage(GetServersCommand.identifier+";"+currentUser.getUsername());
                 
                 Channel startingChannel = new Channel("Loading...");
                 if (!channelList.isEmpty()) {
@@ -83,15 +106,20 @@ public class App {
                 });
 
                 // --- D. CREATE CONTROLLERS ---
-                // Notice how they take the Session AND the Services now!
+                // Notice how they take the Session AND the Services now
+                
+
                 chatController chatCtrl = new chatController(session, cView, networkClient);
-                channelController chanCtrl = new channelController(session, networkClient, cView);
+                chanCtrl = new channelController(session, networkClient, cView);
+                gsr.SetChannelController(chanCtrl);
 
                 // --- E. CONNECT VIEWS ---
                 cView.setController(chatCtrl);
                 
                 // We use our perfectly cleaned up channelView!
-                new channelView(chanCtrl, mygui);
+                channelView chanView = new channelView(chanCtrl, mygui);
+
+                chanCtrl.setChanView(chanView);
 
                 // --- F. LOAD THE FIRST ROOM ---
                 // The Director handles everything: fetching history, saving to RAM, and drawing the screen!
@@ -102,6 +130,10 @@ public class App {
             loginController = new LoginController(loginView, onLoginSuccess, networkClient);
             
             loginView.show();
+            clientRouter.registerCommand(GetServersCommand.identifier, gsr);
+            clientRouter.registerCommand(LoginCommand.identifier, new LoginResponse(loginController));
+            clientRouter.registerCommand(SignupCommand.identifier, new SignupResponse(loginController));
         });
     }
+    
 }

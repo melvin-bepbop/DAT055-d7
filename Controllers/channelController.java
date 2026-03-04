@@ -4,6 +4,7 @@ package Controllers;
 import Models.AccesibleChannels;
 import Models.Channel;
 import Models.ClientSession;
+import Views.channelView;
 import Views.chatView;
 import Network.Client;
 /**
@@ -16,6 +17,7 @@ public class channelController {
     private ClientSession session; 
     private Client networkClient;
     private chatView chatView;
+    private channelView chanView;
 
 /**
      * Constructs a new channelController with the required dependencies.
@@ -30,6 +32,23 @@ public channelController(ClientSession session, Client networkClient, chatView c
         this.session = session;
         this.networkClient = networkClient;
         this.chatView = chatView;
+        
+    }
+    
+
+    public channelController(){}
+
+    public void setChanView(channelView chanView) {
+        this.chanView = chanView;
+    }
+    public void setChatView(chatView chatView) {
+        this.chatView = chatView;
+    }
+    public void setNetworkClient(Client networkClient) {
+        this.networkClient = networkClient;
+    }
+    public void setSession(ClientSession session) {
+        this.session = session;
     }
 
 /**
@@ -38,16 +57,6 @@ public channelController(ClientSession session, Client networkClient, chatView c
      *
      * @param newChannelName the name of the channel to be created
      */
-
-   /*  public void createNewGlobalChannel(String newChannelName) {
-        //Tell the Service to update the Database
-        channelService.createNewChannel(newChannelName, session.getActiveUser());
-        
-        // Update the local Session so the GUI draws the new button
-        Channel newChan = new Channel(newChannelName);
-        session.getAccesibleChannels().getChannels().add(newChan);
-        changeChannel(newChan);
-    }*/
    public void createNewGlobalChannel(String newChannelName) {
         // Format the request: "HEADER|Data1|Data2"
         String username = session.getActiveUser().getUsername();
@@ -65,30 +74,13 @@ public channelController(ClientSession session, Client networkClient, chatView c
      *
      * @param channel the target {@link Channel} the user wants to enter
      */
-
-/*public void changeChannel(Channel channel) {
-        // Tell the Server/Database that the user moved
-        channelService.updateUserActiveChannel(session.getActiveUser(), channel);
-        
-        // Fetch the chat history using YOUR actual method name!
-        LinkedList<Message> history = messageService.getHistory(channel); 
-        
-        // Update our local RAM (Session)
-        MessagesInChannel newFolder = new MessagesInChannel(channel);
-        newFolder.addMessages(history);
-        session.changeChannel(channel, newFolder);
-        
-        // Wipe the old chat off the screen and draw the new history
-        chatView.displayMessageHistory(history, session.getActiveUser());
-    }*/
-public void changeChannel(Channel channel) {
+    public void changeChannel(Channel channel) {
         String username = session.getActiveUser().getUsername();
         String payload = "CHANNEL_JOIN|" + username + "|" + channel.getChannelName();
         
         networkClient.sendMessage(payload);
         
-        // Clear the screen while we wait for the server to reply with the history
-        chatView.clearChatDisplay();
+        
     }
     
     /**
@@ -100,5 +92,9 @@ public void changeChannel(Channel channel) {
 
     public AccesibleChannels GetAllChannels() {
         return session.getAccesibleChannels();
+    }
+    public void AddToAccesibleChannels(Channel channel){
+        session.getAccesibleChannels().addChannel(channel);
+        chanView.AddChannelToSideBar(channel);
     }
 }

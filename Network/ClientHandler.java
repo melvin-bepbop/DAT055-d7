@@ -12,10 +12,12 @@ public class ClientHandler implements Runnable {
     public static ArrayList<ClientHandler> ClientHandlers = new ArrayList<>();
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
+    private Router router;
 
-    public ClientHandler(Socket socket) {
+    public ClientHandler(Socket socket, Router router) {
         try{
             this.socket = socket; 
+            this.router = router;
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             ClientHandlers.add(this);
@@ -32,7 +34,10 @@ public class ClientHandler implements Runnable {
         while (socket.isConnected()) {
             try{
                 messageFromClient = bufferedReader.readLine();
-                broadcastMessage(messageFromClient);
+                System.out.println(messageFromClient);
+                if(messageFromClient != null){
+                    router.handleRequest(messageFromClient, this);
+                }
             }
             catch(IOException e){
                 closeEverything(socket, bufferedReader, bufferedWriter);

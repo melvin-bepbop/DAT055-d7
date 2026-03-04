@@ -9,13 +9,16 @@ public class Client {
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
     private String username;
+    private ClientRouter clientRouter;
 
-    public Client (Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter, String username){
+    public Client (Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter, ClientRouter clientRouter, String username){
         this.socket = socket;
         this.bufferedReader = bufferedReader;
         this.bufferedWriter = bufferedWriter;
+        this.clientRouter = clientRouter;
         this.username = username;
     }
+
 
   public void sendMessage(String message) {
         try {
@@ -35,7 +38,8 @@ public class Client {
                     try{
                         message = bufferedReader.readLine();
 
-
+                        System.out.println(message);
+                        clientRouter.handleRequest(message);
                         //----------------
 
                     } catch(IOException e){

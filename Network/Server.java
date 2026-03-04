@@ -4,15 +4,17 @@ import java.net.Socket;
 import java.net.ServerSocket;
 public class Server{
     private ServerSocket serverSocket;
-    public Server(ServerSocket serverSocket){
+    private Router router;
+    public Server(ServerSocket serverSocket, Router router){
         this.serverSocket = serverSocket;
+        this.router = router;
     }
     public void startServer(){
         try{
             while (!this.serverSocket.isClosed()) {
                 Socket socket = this.serverSocket.accept();
                 System.out.println("New Client connected");
-                ClientHandler clientHandler = new ClientHandler(socket);
+                ClientHandler clientHandler = new ClientHandler(socket, router);
                 Thread thread = new Thread(clientHandler);
                 thread.start();
             }

@@ -3,6 +3,8 @@ package Controllers;
 import Models.User;
 import Views.LoginView;
 import Network.Client; // <-- We use your Network Client now!
+import Network.NetworkCommands.LoginCommand;
+import Network.NetworkCommands.SignupCommand;
 
 public class LoginController {
     private LoginView view;
@@ -30,7 +32,7 @@ public class LoginController {
             }
 
             // Format string and send over socket!
-            String payload = "LOGIN|" + username + "|" + password;
+            String payload = LoginCommand.identifier + ";" + username + ";" + password;
             networkClient.sendMessage(payload);
             
             // NOTE: We do NOT close the window here. We wait for the server!
@@ -47,7 +49,7 @@ public class LoginController {
             }
 
             // Format string and send over socket!
-            String payload = "REGISTER|" + username + "|" + password;
+            String payload = SignupCommand.identifier +";" + username + ";" + password;
             networkClient.sendMessage(payload);
             
             // NOTE: We wait for the server to handle permissions and reply!
@@ -63,6 +65,7 @@ public class LoginController {
     public void handleLoginSuccess(String username, String password) {
         loggedInUser = new User(username, password); 
         view.hide();
+        //MELLANSTEGHÄR
         onLoginSuccess.run();
     }
 
