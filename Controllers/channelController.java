@@ -1,15 +1,11 @@
 package Controllers;
-import java.util.LinkedList;
+
 
 import Models.AccesibleChannels;
 import Models.Channel;
 import Models.ClientSession;
-import Models.MessagesInChannel;
-import Models.Message;
-import Services.ChannelService;
-import Services.MessageService;
 import Views.chatView;
-
+import Network.Client;
 /**
  * The controller responsible for handling user interactions related to channels.
  * It acts as the mediator between the user interface (Views), the business logic 
@@ -18,8 +14,7 @@ import Views.chatView;
 
 public class channelController {
     private ClientSession session; 
-    private ChannelService channelService; 
-    private MessageService messageService; 
+    private Client networkClient;
     private chatView chatView;
 
 /**
@@ -31,11 +26,10 @@ public class channelController {
      * @param chatView       the GUI component where the chat is displayed
      */
 
-    public channelController(ClientSession session, ChannelService channelService, MessageService messageService, chatView chatView) {
+public channelController(ClientSession session, Client networkClient, chatView chatView) {
         this.session = session;
-        this.channelService = channelService;
+        this.networkClient = networkClient;
         this.chatView = chatView;
-        this.messageService = messageService;
     }
 
 /**
@@ -45,7 +39,7 @@ public class channelController {
      * @param newChannelName the name of the channel to be created
      */
 
-    public void createNewGlobalChannel(String newChannelName) {
+   /*  public void createNewGlobalChannel(String newChannelName) {
         //Tell the Service to update the Database
         channelService.createNewChannel(newChannelName, session.getActiveUser());
         
@@ -53,6 +47,14 @@ public class channelController {
         Channel newChan = new Channel(newChannelName);
         session.getAccesibleChannels().getChannels().add(newChan);
         changeChannel(newChan);
+    }*/
+   public void createNewGlobalChannel(String newChannelName) {
+        // Format the request: "HEADER|Data1|Data2"
+        String username = session.getActiveUser().getUsername();
+        String payload = "CHANNEL_CREATE|" + username + "|" + newChannelName;
+        
+        // Hand it to your Client to send over the socket
+        networkClient.sendMessage(payload);
     }
 
     /**
@@ -64,7 +66,7 @@ public class channelController {
      * @param channel the target {@link Channel} the user wants to enter
      */
 
-public void changeChannel(Channel channel) {
+/*public void changeChannel(Channel channel) {
         // Tell the Server/Database that the user moved
         channelService.updateUserActiveChannel(session.getActiveUser(), channel);
         
@@ -78,6 +80,15 @@ public void changeChannel(Channel channel) {
         
         // Wipe the old chat off the screen and draw the new history
         chatView.displayMessageHistory(history, session.getActiveUser());
+    }*/
+public void changeChannel(Channel channel) {
+        String username = session.getActiveUser().getUsername();
+        String payload = "CHANNEL_JOIN|" + username + "|" + channel.getChannelName();
+        
+        networkClient.sendMessage(payload);
+        
+        // Clear the screen while we wait for the server to reply with the history
+        chatView.clearChatDisplay();
     }
     
     /**

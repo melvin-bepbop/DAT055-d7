@@ -17,8 +17,14 @@ public class Client {
         this.username = username;
     }
 
-    public void sendMessage(){
-
+  public void sendMessage(String message) {
+        try {
+            bufferedWriter.write(message);
+            bufferedWriter.newLine(); // Very important! Tells the server the message is done
+            bufferedWriter.flush();   // Pushes it out immediately
+        } catch (IOException e) {
+            closeEverything(socket, bufferedReader, bufferedWriter);
+        }
     }
     public void listenForMessage(){
         new Thread(new Runnable() {

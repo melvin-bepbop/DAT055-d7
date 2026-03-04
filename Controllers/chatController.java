@@ -1,33 +1,49 @@
 package Controllers;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 
 import Models.Channel;
 import Models.ClientSession;
-import Models.MessagesInChannel;
 import Models.User;
 import Models.Message;
-import Services.MessageService;
 import Views.chatView;
+import Network.Client;
 
 public class chatController {
     private chatView chatview;
     private ClientSession session; 
-    private MessageService messageService; 
+    private Client networkClient; 
 
     
-    public chatController(ClientSession session, chatView chatview, MessageService messageService){
+public chatController(ClientSession session, chatView chatview, Client networkClient){
         this.session = session;
         this.chatview = chatview;
-        this.messageService = messageService;
+        this.networkClient = networkClient;
     }
 
-    public void sendMessageToDatabase(String Content, String type){
+    /*public void sendMessageToDatabase(String Content, String type){
         //Tell the Server (Service) to save it to Postgres
         messageService.sendMessage(session.getActiveUser(), session.getActiveChannel(), Content, type);
         
         //Immediately trigger the check to pull it back and display it!
         checkForNewMessages();
+    }*/
+   // Renamed because we are no longer talking to the Database directly
+    public void sendMessageToServer(String content, String type){
+        User activeUser = session.getActiveUser();
+        Channel activeChannel = session.getActiveChannel();
+
+        // 1. Format the request into a String Payload
+        // Example text:  "MSG_SEND|text|Alice|General|Hello everyone!"
+        // Example image: "MSG_SEND|image|Alice|General|Base64String..."
+        String payload = "MSG_SEND|" + type + "|" + activeUser.getUsername() + "|" + 
+                         activeChannel.getChannelName() + "|" + content;
+        
+        // 2. Push it down the network pipe!
+        networkClient.sendMessage(payload);
+        
+        // NO MORE POLLING! 
+        // We do not check for new messages here. We just wait for the Server
+        // to broadcast this message back to our listenForMessage() thread.
     }
 
     public void loadChannelHistory() {
@@ -41,7 +57,7 @@ public class chatController {
         }
     }
 
-    public void checkForNewMessages() {
+    /*public void checkForNewMessages() {
         Channel activeChan = session.getActiveChannel();
         
         // Find the folder in our Session to see when we last checked
@@ -68,5 +84,5 @@ public class chatController {
                 }
             }
         }
-    }
+    }*/
 }

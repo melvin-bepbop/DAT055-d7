@@ -55,7 +55,7 @@ public class chatView {
         display.onSendAction(() -> {
             String text = display.getInputText();
             if (!text.trim().isEmpty()) {
-                chatCtrl.sendMessageToDatabase(text, "text");
+                chatCtrl.sendMessageToServer(text, "text");
                 display.clearInputField(); 
             }
         });
@@ -67,7 +67,7 @@ public class chatView {
             if (selectedFile != null) {
                 String base64Image = ImageUtils.encodeFileToBase64(selectedFile); // chatView handles data
                 if (base64Image != null) {
-                    chatCtrl.sendMessageToDatabase(base64Image, "image");
+                    chatCtrl.sendMessageToServer(base64Image, "image");
                 }
             }
         });

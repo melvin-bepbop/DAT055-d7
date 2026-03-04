@@ -19,6 +19,7 @@ import Views.GUI;
 import Views.LoginView;
 import Views.channelView;
 import Views.chatView;
+import Network.Client;
 
 import java.util.LinkedList;
 
@@ -83,8 +84,8 @@ public class App {
 
                 // --- D. CREATE CONTROLLERS ---
                 // Notice how they take the Session AND the Services now!
-                chatController chatCtrl = new chatController(session, cView, messageService);
-                channelController chanCtrl = new channelController(session, channelService, messageService, cView);
+                chatController chatCtrl = new chatController(session, cView, networkClient);
+                channelController chanCtrl = new channelController(session, networkClient, cView);
 
                 // --- E. CONNECT VIEWS ---
                 cView.setController(chatCtrl);
@@ -97,8 +98,8 @@ public class App {
                 chanCtrl.changeChannel(startingChannel); 
             };
 
-            // 4. Create the Login Controller (Uses the Services!)
-            loginController = new LoginController(loginView, onLoginSuccess, userService, channelService);
+            // 4. Create the Login Controller
+            loginController = new LoginController(loginView, onLoginSuccess, networkClient);
             
             loginView.show();
         });
