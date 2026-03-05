@@ -11,7 +11,7 @@ public class LoginController {
     private Runnable onLoginSuccess; 
     private User loggedInUser;
     
-    private Client networkClient; // <-- Replaced the Database Services!
+    private Client networkClient; 
 
     public LoginController(LoginView view, Runnable onLoginSuccess, Client networkClient) {
         this.view = view;
@@ -21,7 +21,7 @@ public class LoginController {
     }
 
     private void setupListeners() {
-        // --- 1. SENDING THE LOGIN REQUEST ---
+        // SENDING THE LOGIN REQUEST
         view.addLoginListener(e -> {
             String username = view.getUsername();
             String password = view.getPassword();
@@ -31,14 +31,12 @@ public class LoginController {
                 return;
             }
 
-            // Format string and send over socket!
             String payload = LoginCommand.identifier + ";" + username + ";" + password;
             networkClient.sendMessage(payload);
             
-            // NOTE: We do NOT close the window here. We wait for the server!
         });
 
-        // --- 2. SENDING THE REGISTER REQUEST ---
+        // SENDING THE REGISTER REQUEST 
         view.addCreateAccountListener(e -> {
             String username = view.getUsername();
             String password = view.getPassword();
@@ -48,19 +46,14 @@ public class LoginController {
                 return;
             }
 
-            // Format string and send over socket!
+   
             String payload = SignupCommand.identifier +";" + username + ";" + password;
             networkClient.sendMessage(payload);
             
-            // NOTE: We wait for the server to handle permissions and reply!
         });
     }
 
-    // ======================================================================
-    // --- NEW: METHODS FOR YOUR UPCOMING CLIENT-SIDE SOCKET ROUTER ---
-    // ======================================================================
-    // When your Client.java receives a message from the server, it will 
-    // look at the string and trigger one of these specific methods.
+
 
     public void handleLoginSuccess(String username, String password) {
         loggedInUser = new User(username, password); 

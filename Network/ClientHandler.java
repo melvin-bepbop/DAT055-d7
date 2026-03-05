@@ -34,9 +34,9 @@ public class ClientHandler implements Runnable {
         while (socket.isConnected()) {
             try{
                 messageFromClient = bufferedReader.readLine();
-                System.out.println(messageFromClient);
+                //System.out.println(messageFromClient);
                 if(messageFromClient != null){
-                    System.out.println("From Client: "+ messageFromClient);
+                    //System.out.println("From Client: "+ messageFromClient);
                     router.handleRequest(messageFromClient, this);
                 }
             }

@@ -4,28 +4,31 @@ import Controllers.channelController;
 import Controllers.chatController;
 import Models.AccesibleChannels;
 import Models.Channel;
-import Models.ImageMessage;
 import Models.Message;
-import Models.TextMessage;
+import Models.MessageFactory;
+import Models.MessagesInChannel;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
-
-import Models.MessagesInChannel;
+import java.util.Map;
 
 public class GetAllMessageResponse implements IClientResponseCommands {
-
+    private Map<String, MessageFactory> messageRegistry;
     private channelController chanCont;
     private chatController chatcont;
 
-    public GetAllMessageResponse(channelController channelControll){
+    public GetAllMessageResponse(channelController channelControll, Map<String, MessageFactory> registry){
         this.chanCont = channelControll;
+        this.messageRegistry = registry;
     }
+    
     public void SetChannelController(channelController channelControll){
         this.chanCont = channelControll;
     }
+    
     public void setChaCont(chatController chatCont) {
         this.chatcont = chatCont;
     }
+    
     @Override
     public void execute(String[] string){
         if (!string[1].equals("FAIL")) {
@@ -38,20 +41,31 @@ public class GetAllMessageResponse implements IClientResponseCommands {
                     break;
                 }
             }
+            
             MessagesInChannel messagesInChannel = new MessagesInChannel(targetChannel);
             System.out.println("Getting message from "+ targetChannel);
 
             LinkedList<Message> msgs = new LinkedList<>();
-            for(int i = 2; i <string.length; i+=4){
-                if(string[i+1].equals("text")){
-                    msgs.add(new TextMessage(string[i], string[i+2], LocalDateTime.parse(string[i+3]))); 
-                }
-                else if(string[i+1].equals("image")){
-                    msgs.add(new ImageMessage(string[i], string[i+2], LocalDateTime.parse(string[i+3])));
-                }
-                System.out.println("Added message: "+i/4);
+            
+            for(int i = 2; i < string.length; i+=4){
+                // 1. Extract variables for clean reading
+                String user = string[i];
+                String type = string[i+1].toLowerCase();
+                String content = string[i+2];
+                LocalDateTime time = LocalDateTime.parse(string[i+3]);
 
+                // 2. Lookup the factory blueprint in the registry
+                MessageFactory factory = messageRegistry.get(type);
+
+                // 3. Build the object dynamically!
+                if (factory != null) {
+                    msgs.add(factory.create(user, content, time));
+                    System.out.println("Added " + type /*+ " message: " + (i/4)*/);
+                } else {
+                    System.out.println("Warning: Unknown message type received: " + type);
+                }
             }
+            
             messagesInChannel.addMessages(msgs);
             chatcont.addChannelHistory(msgs, targetChannel); 
         }

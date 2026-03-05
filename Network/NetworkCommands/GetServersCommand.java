@@ -25,7 +25,7 @@ public class GetServersCommand implements INetworkCommand{
                 msg = msg+";"+channel.getChannelName();
             }
             sender.respondToClient(msg);
-            System.out.println(msg);
+            //System.out.println(msg);
         }
         else{
             sender.respondToClient(identifier+";FAIL");

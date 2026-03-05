@@ -38,7 +38,7 @@ public class Client {
                     try{
                         message = bufferedReader.readLine();
 
-                        System.out.println(message);
+                        //System.out.println(message);
                         clientRouter.handleRequest(message);
                         //----------------
 

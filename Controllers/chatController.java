@@ -25,14 +25,6 @@ public chatController(ClientSession session, chatView chatview, Client networkCl
         this.networkClient = networkClient;
     }
 
-    /*public void sendMessageToDatabase(String Content, String type){
-        //Tell the Server (Service) to save it to Postgres
-        messageService.sendMessage(session.getActiveUser(), session.getActiveChannel(), Content, type);
-        
-        //Immediately trigger the check to pull it back and display it!
-        checkForNewMessages();
-    }*/
-   // Renamed because we are no longer talking to the Database directly
     public void sendMessageToServer(String content, String type){
         User activeUser = session.getActiveUser();
         Channel activeChannel = session.getActiveChannel();
@@ -106,31 +98,3 @@ public chatController(ClientSession session, chatView chatview, Client networkCl
         loadChannelHistory();
     }
 }
-    /*public void checkForNewMessages() {
-        Channel activeChan = session.getActiveChannel();
-        
-        // Find the folder in our Session to see when we last checked
-        MessagesInChannel currentFolder = null;
-        for (MessagesInChannel folder : session.getMsgHistoryInChannels()) {
-            if (folder.getChannel().getChannelName().equals(activeChan.getChannelName())) {
-                currentFolder = folder;
-                break;
-            }
-        }
-
-        if (currentFolder != null) {
-        // Ask the Server (MessageService) for new messages since our last timestamp
-            LocalDateTime lastCheck = currentFolder.getLastUpdated();
-            LinkedList<Message> freshMessages = messageService.getNewMessages(activeChan, lastCheck);
-
-         // Put them in the folder and tell the GUI to draw them
-            if (!freshMessages.isEmpty()) {
-                currentFolder.addMessages(freshMessages); 
-                
-                User currentUser = session.getActiveUser();
-                for (Message msg : freshMessages) {
-                    chatview.addMessageToDisplay(msg, currentUser);
-                }
-            }
-        }
-    }*/

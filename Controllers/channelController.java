@@ -25,8 +25,7 @@ public class channelController {
      * Constructs a new channelController with the required dependencies.
      *
      * @param session        the current client session containing local state
-     * @param channelService the service handling channel-related database logic
-     * @param messageService the service handling message-related database logic
+     * @param networkClient  holds the methods for sending strings to the server
      * @param chatView       the GUI component where the chat is displayed
      */
 

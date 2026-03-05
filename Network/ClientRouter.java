@@ -23,7 +23,7 @@ public class ClientRouter {
 
         if (command != null) {
             command.execute(parts);
-            System.out.println("Client Recieved: "+ rawData);
+            //System.out.println("Client Recieved: "+ rawData);
         } else {
             System.err.println("Okänt kommando mottaget -> " + commandName);
         }

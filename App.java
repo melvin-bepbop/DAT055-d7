@@ -3,18 +3,13 @@ import javax.swing.SwingUtilities;
 import Controllers.LoginController;
 import Controllers.channelController;
 import Controllers.chatController;
-import Database.PostgresTranslator;
 import Models.AccesibleChannels;
 import Models.Channel;
 import Models.ClientSession;
 import Models.ImageMessage;
+import Models.MessageFactory;
 import Models.TextMessage;
 import Models.User;
-import Services.ChannelService;
-import Services.GlobalAccessRule;
-import Services.IChannelAccessRule;
-import Services.MessageService;
-import Services.UserService;
 import Views.GUI;
 import Views.LoginView;
 import Views.channelView;
@@ -44,7 +39,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 public class App {
     private static LoginController loginController;
@@ -57,11 +54,14 @@ public class App {
         LinkedList<Channel> channelList = new LinkedList<>();
         AccesibleChannels accessible = new AccesibleChannels(channelList);
         clientRouter = new ClientRouter();
+        Map<String, MessageFactory> clientRegistry = new HashMap<>();
+        clientRegistry.put("text", (u, c, t) -> new TextMessage(u, c, t));
+        clientRegistry.put("image", (u, c, t) -> new ImageMessage(u, c, t));
         GetServersResponse gsr = new GetServersResponse(chanCtrl);
-        GetAllMessageResponse gamr = new GetAllMessageResponse(chanCtrl);
+        GetAllMessageResponse gamr = new GetAllMessageResponse(chanCtrl, clientRegistry);
         ChangeChannelResponse ccr = new ChangeChannelResponse(chanCtrl, chatCtrl);
-        GetMessagesFromResponse gmfr = new GetMessagesFromResponse(chanCtrl);
-        SentMessageResponse smr = new SentMessageResponse();
+        GetMessagesFromResponse gmfr = new GetMessagesFromResponse(chanCtrl, clientRegistry);
+        SentMessageResponse smr = new SentMessageResponse(clientRegistry);
         NewChannelResponse ncr = new NewChannelResponse(chanCtrl);
 
 
@@ -98,10 +98,9 @@ public class App {
                     System.out.println("Warning: This user has no assigned channels!");
                 }
 
-                // Create the pure data session! No database links here.
                 ClientSession session = new ClientSession(currentUser, startingChannel, accessible);
 
-                // --- C. BUILD THE UI ---
+                // BUILD THE UI
               String[] channelNames = new String[channelList.size()];
                 for (int i = 0; i < channelList.size(); i++) {
                     channelNames[i] = channelList.get(i).getChannelName();
@@ -110,29 +109,26 @@ public class App {
                 GUI mygui = new GUI(channelNames);
                 chatView cView = new chatView(mygui);
 
-                // ---> UPDATED LAMBDAS <---
                 cView.registerRenderer("text", (msg, g, time, isMe) -> {
                     g.addMessage(msg.getUsername(), msg.getContent(), time, isMe);
                 });
 
                 cView.registerRenderer("image", (msg, g, time, isMe) -> {
-                    // No more ImageIcon conversion here! 
-                    // We just pass the Base64 string directly to the interface.
+
                     g.addImageMessage(msg.getUsername(), msg.getContent(), time, isMe);
                 });
 
-                // --- D. CREATE CONTROLLERS ---
-                // Notice how they take the Session AND the Services now
+                // CREATE CONTROLLERS 
                 
 
                  chatCtrl = new chatController(session, cView, networkClient);
                 chanCtrl = new channelController(session, networkClient, cView);
                 gsr.SetChannelController(chanCtrl);
 
-                // --- E. CONNECT VIEWS ---
+                // CONNECT VIEWS
                 cView.setController(chatCtrl);
                 
-                // We use our perfectly cleaned up channelView!
+               
                 channelView chanView = new channelView(chanCtrl, mygui);
 
                 chanCtrl.setChanView(chanView);
@@ -148,15 +144,16 @@ public class App {
 
 
 
-                // --- F. LOAD THE FIRST ROOM ---
-                // The Director handles everything: fetching history, saving to RAM, and drawing the screen!
+                // LOAD THE FIRST ROOM 
+ 
                 chanCtrl.changeChannel(startingChannel); 
             };
 
-            // 4. Create the Login Controller
+            //Create the Login Controller
             loginController = new LoginController(loginView, onLoginSuccess, networkClient);
             
             loginView.show();
+            //regsiter commands
             clientRouter.registerCommand(GetServersCommand.identifier, gsr);
             clientRouter.registerCommand(LoginCommand.identifier, new LoginResponse(loginController));
             clientRouter.registerCommand(SignupCommand.identifier, new SignupResponse(loginController));

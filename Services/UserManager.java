@@ -1,5 +1,5 @@
 package Services;
-import java.util.LinkedList;
+/*import java.util.LinkedList;
 
 import Database.IChannelRepo;
 import Models.Channel;
@@ -24,4 +24,4 @@ public class UserManager {
     public void revokeAccess(User user, Channel channel) {
         channelRepo.UserLeaveChannel(user.getUsername(), channel.getChannelName());
     }
-}
+}*/

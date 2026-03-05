@@ -25,7 +25,7 @@ public class GetAllMessageCommand implements INetworkCommand {
                 msg = msg + ";" + msgnext.getUsername() + ";" + msgnext.getType() + ";" + msgnext.getContent() + ";" + msgnext.getTimeStamp().toString();
             }
             sender.respondToClient(msg);
-            System.out.println(msg);
+            //System.out.println(msg);
         }
         else{
             sender.respondToClient(identifier+";FAIL");

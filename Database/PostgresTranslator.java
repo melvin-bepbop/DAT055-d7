@@ -13,7 +13,7 @@ import Models.MessageFactory;
 
 public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo {
     
-    private final String URL = "jdbc:postgresql://localhost:5432/postgres";
+    private final String URL = "jdbc:postgresql://localhost:5432/chat_project";
     private final String USER = "postgres";
     private final String PASS = "postgres";
     private Connection conn;

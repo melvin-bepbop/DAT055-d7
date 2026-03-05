@@ -20,7 +20,7 @@ import Models.Channel;
 import Models.ClientSession;
 import Models.ImageMessage;
 import Models.TextMessage;
-import Models.serverModel;
+//import Models.serverModel;
 import Models.User;
 import Services.ChannelService;
 import Services.GlobalAccessRule;
@@ -68,7 +68,7 @@ public class AppServer {
 
         ChannelService channelService = new ChannelService(db, db, myRule);
         MessageService messageService = new MessageService(db);
-        serverModel sm = new serverModel(userService, messageService, channelService);
+       // serverModel sm = new serverModel(userService, messageService, channelService);
     }
     
 }
