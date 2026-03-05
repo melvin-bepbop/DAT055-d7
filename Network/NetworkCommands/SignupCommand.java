@@ -17,10 +17,10 @@ public class SignupCommand implements INetworkCommand{
         String passWord = data[2];
         boolean succed = userRepo.createUser(username, passWord);
         if (succed) {
-            sender.broadcastMessage(identifier+";TRUE");
+            sender.respondToClient(identifier+";TRUE");
         }
         else{
-            sender.broadcastMessage(identifier+";FAIL");
+            sender.respondToClient(identifier+";FAIL");
         }
     }
 }

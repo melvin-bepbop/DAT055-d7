@@ -32,6 +32,7 @@ public class chatView {
         boolean isMe = user.getUsername().equals(msg.getUsername());
         String time = msg.getTimeStamp().toString();
 
+        System.out.println("new message!");
         MessageRenderer renderer = renderers.get(msg.getType().toLowerCase());
         if (renderer != null) {
             renderer.draw(msg, display, time, isMe); 

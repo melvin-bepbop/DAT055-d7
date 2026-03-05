@@ -36,6 +36,7 @@ public class ClientHandler implements Runnable {
                 messageFromClient = bufferedReader.readLine();
                 System.out.println(messageFromClient);
                 if(messageFromClient != null){
+                    System.out.println("From Client: "+ messageFromClient);
                     router.handleRequest(messageFromClient, this);
                 }
             }
@@ -52,6 +53,18 @@ public class ClientHandler implements Runnable {
             ch.bufferedWriter.newLine();
             ch.bufferedWriter.flush();
         }
+        }
+    
+        catch(IOException e){
+            closeEverything(socket, bufferedReader, bufferedWriter);
+        }
+    }
+    public void respondToClient(String message){
+        try{
+            this.bufferedWriter.write(message);
+            this.bufferedWriter.newLine();
+            this.bufferedWriter.flush();
+        
         }
     
         catch(IOException e){

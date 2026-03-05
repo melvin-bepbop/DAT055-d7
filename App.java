@@ -21,11 +21,21 @@ import Views.channelView;
 import Views.chatView;
 import Network.Client;
 import Network.ClientRouter;
+import Network.ClientResponseCommands.ChangeChannelResponse;
+import Network.ClientResponseCommands.GetAllMessageResponse;
+import Network.ClientResponseCommands.GetMessagesFromResponse;
 import Network.ClientResponseCommands.GetServersResponse;
 import Network.ClientResponseCommands.LoginResponse;
+import Network.ClientResponseCommands.NewChannelResponse;
+import Network.ClientResponseCommands.SentMessageResponse;
 import Network.ClientResponseCommands.SignupResponse;
+import Network.NetworkCommands.ChangeChannelCommand;
+import Network.NetworkCommands.CreateNewChannelCommand;
+import Network.NetworkCommands.GetAllMessageCommand;
+import Network.NetworkCommands.GetMessagesFromCommand;
 import Network.NetworkCommands.GetServersCommand;
 import Network.NetworkCommands.LoginCommand;
+import Network.NetworkCommands.SendMessageCommand;
 import Network.NetworkCommands.SignupCommand;
 
 import java.io.BufferedReader;
@@ -41,12 +51,18 @@ public class App {
     private static Client networkClient;
     private static ClientRouter clientRouter;
     private static channelController chanCtrl;
+    private static chatController chatCtrl;
 
     public static void main(String[] args) {
         LinkedList<Channel> channelList = new LinkedList<>();
         AccesibleChannels accessible = new AccesibleChannels(channelList);
         clientRouter = new ClientRouter();
         GetServersResponse gsr = new GetServersResponse(chanCtrl);
+        GetAllMessageResponse gamr = new GetAllMessageResponse(chanCtrl);
+        ChangeChannelResponse ccr = new ChangeChannelResponse(chanCtrl, chatCtrl);
+        GetMessagesFromResponse gmfr = new GetMessagesFromResponse(chanCtrl);
+        SentMessageResponse smr = new SentMessageResponse();
+        NewChannelResponse ncr = new NewChannelResponse(chanCtrl);
 
 
         try{
@@ -109,7 +125,7 @@ public class App {
                 // Notice how they take the Session AND the Services now
                 
 
-                chatController chatCtrl = new chatController(session, cView, networkClient);
+                 chatCtrl = new chatController(session, cView, networkClient);
                 chanCtrl = new channelController(session, networkClient, cView);
                 gsr.SetChannelController(chanCtrl);
 
@@ -120,6 +136,17 @@ public class App {
                 channelView chanView = new channelView(chanCtrl, mygui);
 
                 chanCtrl.setChanView(chanView);
+                ccr.SetChannelController(chanCtrl);
+                gamr.SetChannelController(chanCtrl);
+                gsr.SetChannelController(chanCtrl);
+                ccr.setChatCont(chatCtrl);
+                gamr.setChaCont(chatCtrl);;
+                gmfr.SetChannelController(chanCtrl);
+                gmfr.setChaCont(chatCtrl);
+                smr.setChatCont(chatCtrl);
+                ncr.SetChannelController(chanCtrl);
+
+
 
                 // --- F. LOAD THE FIRST ROOM ---
                 // The Director handles everything: fetching history, saving to RAM, and drawing the screen!
@@ -133,6 +160,13 @@ public class App {
             clientRouter.registerCommand(GetServersCommand.identifier, gsr);
             clientRouter.registerCommand(LoginCommand.identifier, new LoginResponse(loginController));
             clientRouter.registerCommand(SignupCommand.identifier, new SignupResponse(loginController));
+            clientRouter.registerCommand(ChangeChannelCommand.identifier, ccr);
+            clientRouter.registerCommand(GetAllMessageCommand.identifier, gamr);
+            clientRouter.registerCommand(GetMessagesFromCommand.identifier, gmfr);
+            clientRouter.registerCommand(SendMessageCommand.identifier, smr);
+            clientRouter.registerCommand(CreateNewChannelCommand.identifier, ncr);
+
+
         });
     }
     

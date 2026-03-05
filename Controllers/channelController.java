@@ -7,6 +7,8 @@ import Models.ClientSession;
 import Views.channelView;
 import Views.chatView;
 import Network.Client;
+import Network.NetworkCommands.ChangeChannelCommand;
+import Network.NetworkCommands.CreateNewChannelCommand;
 /**
  * The controller responsible for handling user interactions related to channels.
  * It acts as the mediator between the user interface (Views), the business logic 
@@ -58,11 +60,8 @@ public channelController(ClientSession session, Client networkClient, chatView c
      * @param newChannelName the name of the channel to be created
      */
    public void createNewGlobalChannel(String newChannelName) {
-        // Format the request: "HEADER|Data1|Data2"
-        String username = session.getActiveUser().getUsername();
-        String payload = "CHANNEL_CREATE|" + username + "|" + newChannelName;
+        String payload = CreateNewChannelCommand.identifier + ";" + newChannelName;
         
-        // Hand it to your Client to send over the socket
         networkClient.sendMessage(payload);
     }
 
@@ -75,12 +74,16 @@ public channelController(ClientSession session, Client networkClient, chatView c
      * @param channel the target {@link Channel} the user wants to enter
      */
     public void changeChannel(Channel channel) {
+        /*
         String username = session.getActiveUser().getUsername();
-        String payload = "CHANNEL_JOIN|" + username + "|" + channel.getChannelName();
+        String payload = ChangeChannelCommand.identifier + ";" + username + ";" + channel.getChannelName();
         
         networkClient.sendMessage(payload);
-        
-        
+        */
+       session.changeChannel(channel);
+    }
+    public void RequestChangeChannel(Channel channel){
+        networkClient.sendMessage(ChangeChannelCommand.identifier+";"+channel.getChannelName()+";"+session.getActiveUser().getUsername());
     }
     
     /**

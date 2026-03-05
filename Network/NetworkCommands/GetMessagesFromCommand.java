@@ -1,24 +1,25 @@
 package Network.NetworkCommands;
 
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 
-import Database.IChannelRepo;
 import Database.IMessageRepo;
 import Models.Message;
 import Network.ClientHandler;
 
-public class GetAllMessageCommand implements INetworkCommand {
-    public final static String identifier = "GETALLMSG";
+public class GetMessagesFromCommand implements INetworkCommand {
+    public final static String identifier = "GETMSGSFROM";
 
     private IMessageRepo msgRepo;
 
-    public GetAllMessageCommand(IMessageRepo messageRepo){
+    public GetMessagesFromCommand(IMessageRepo messageRepo){
         this.msgRepo = messageRepo;
     }
     @Override
     public void execute(String[] data, ClientHandler sender){
         String Channel = data[1];
-        LinkedList<Message> msgs  = msgRepo.GetAllMessagesInChannel(Channel);
+        LocalDateTime time = LocalDateTime.parse(data[2]);
+        LinkedList<Message> msgs  = msgRepo.GetNewMessagesInChannelFromTimeStamp(Channel, time);
         if (msgs != null) {
             String msg = "" + identifier+";"+Channel;
             for (Message msgnext: msgs) {
@@ -31,5 +32,4 @@ public class GetAllMessageCommand implements INetworkCommand {
             sender.respondToClient(identifier+";FAIL");
         }
     }
-    
 }

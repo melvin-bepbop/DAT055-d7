@@ -18,17 +18,17 @@ public class GetServersCommand implements INetworkCommand{
     @Override
     public void execute(String[] data, ClientHandler sender){
         String username = data[1];
-        LinkedList<Channel> channels  = channelRepo.GetAllChannelsWhereUserIn(username);
+        LinkedList<Channel> channels  = channelRepo.GetAllChannels();
         if (channels != null) {
             String msg = "" + identifier;
             for (Channel channel : channels) {
                 msg = msg+";"+channel.getChannelName();
             }
-            sender.broadcastMessage(msg);
+            sender.respondToClient(msg);
             System.out.println(msg);
         }
         else{
-            sender.broadcastMessage(identifier+";FAIL");
+            sender.respondToClient(identifier+";FAIL");
         }
     }
 }

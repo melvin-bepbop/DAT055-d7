@@ -45,7 +45,7 @@ public class channelView {
 
             if (targetChannel != null) {
 
-                chnlctrl.changeChannel(targetChannel); 
+                chnlctrl.RequestChangeChannel(targetChannel); 
             } else {
                 System.out.println("Error: Could not find channel object for " + targetName);
             }
@@ -64,10 +64,8 @@ public class channelView {
                 chnlctrl.createNewGlobalChannel(newChannelName);
                 
                 // 4. Add the button to the screen
-                JButton newBtn = gui.addSingleChannelButton(newChannelName);
                 
                 // 5. Attach the standard click listener to this brand new button using our helper!
-                attachChannelListener(newBtn);
             }
         });
     }

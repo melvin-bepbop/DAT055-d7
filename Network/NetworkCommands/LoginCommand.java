@@ -17,10 +17,10 @@ public class LoginCommand implements INetworkCommand{
         String passWord = data[2];
         boolean succed = userRepo.loginUser(username, passWord);
         if (succed) {
-            sender.broadcastMessage(identifier+";"+ username+ ";"+ passWord);
+            sender.respondToClient(identifier+";"+ username+ ";"+ passWord);
         }
         else{
-            sender.broadcastMessage(identifier+";FAIL");
+            sender.respondToClient(identifier+";FAIL");
         }
     }
 }

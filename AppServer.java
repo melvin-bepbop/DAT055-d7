@@ -3,9 +3,13 @@ import java.net.ServerSocket;
 
 import Network.Router;
 import Network.Server;
+import Network.NetworkCommands.ChangeChannelCommand;
+import Network.NetworkCommands.CreateNewChannelCommand;
 import Network.NetworkCommands.GetAllMessageCommand;
+import Network.NetworkCommands.GetMessagesFromCommand;
 import Network.NetworkCommands.GetServersCommand;
 import Network.NetworkCommands.LoginCommand;
+import Network.NetworkCommands.SendMessageCommand;
 import Network.NetworkCommands.SignupCommand;
 import Database.PostgresTranslator;
 import Controllers.channelController;
@@ -37,6 +41,13 @@ public class AppServer {
         serverRouter.registerCommand(SignupCommand.identifier, new SignupCommand(db));
         serverRouter.registerCommand(GetServersCommand.identifier, new GetServersCommand(db));
         serverRouter.registerCommand(GetAllMessageCommand.identifier, new GetAllMessageCommand(db));
+        serverRouter.registerCommand(ChangeChannelCommand.identifier, new ChangeChannelCommand(db));
+        serverRouter.registerCommand(GetMessagesFromCommand.identifier,new GetMessagesFromCommand(db));
+        serverRouter.registerCommand(SendMessageCommand.identifier, new SendMessageCommand(db));
+        serverRouter.registerCommand(CreateNewChannelCommand.identifier, new CreateNewChannelCommand(db));
+
+        //serverRouter.registerCommand(GetAllMessageCommand.identifier, new GetAllMessageCommand(db));
+
 
         try {
             ServerSocket serverSocket = new ServerSocket(8080);
