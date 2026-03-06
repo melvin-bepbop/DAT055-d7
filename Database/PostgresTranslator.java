@@ -11,6 +11,12 @@ import Models.User;
 import Models.Message;
 import Models.MessageFactory;
 
+/**
+ * JDBC implementation of user, channel, and message repositories for PostgreSQL.
+ *
+ * This class uses a single database connection and provides methods for user authentication,
+ * channel management, and message persistence and retrieval.
+ */
 public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo {
     
     private final String URL = "jdbc:postgresql://localhost:5432/chat_project";
@@ -20,10 +26,19 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
 
     private final Map<String, MessageFactory> messageRegistry = new HashMap<>();
 
+    /**
+     * Registers a factory used to create message objects when reading from the database.
+     *
+     * @param type message type identifier
+     * @param factory factory used to create message instances
+     */
     public void registerMessageType(String type, MessageFactory factory) {
         messageRegistry.put(type.toLowerCase(), factory);
     }
 
+    /**
+     * Opens a database connection using the configured connection parameters.
+     */
     public void connect() {
         try {
             conn = DriverManager.getConnection(URL, USER, PASS);
@@ -33,6 +48,12 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         }
     }
     
+    /**
+     * Checks whether a username already exists.
+     *
+     * @param username username to check
+     * @return true if the username exists, otherwise false
+     */
     @Override
     public boolean isUsernameTaken(String username) {
         String sql = "SELECT username FROM Users WHERE username = ?";
@@ -45,6 +66,13 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         }
     }
     
+    /**
+     * Creates a new user and grants initial channel permissions.
+     *
+     * @param username new username
+     * @param password new password
+     * @return true if the user was created, otherwise false
+     */
     @Override
     public boolean createUser(String username, String password) {
         if (isUsernameTaken(username)) {
@@ -64,6 +92,12 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         
     }
     
+    /**
+     * Removes the user's active channel association.
+     *
+     * @param username username to update
+     * @param channelName channel name the user is leaving
+     */
     @Override
     public void UserLeaveChannel(String username, String channelName) {
         try {
@@ -77,6 +111,12 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         }
     }
    
+    /**
+     * Grants permission for a user to access a channel.
+     *
+     * @param username username to grant access to
+     * @param channelName channel to grant access for
+     */
     @Override
     public void GrantUserPermissionToChannel(String username, String channelName) {
         String sql = "INSERT INTO UsersInChannel (username, channel) VALUES (?, ?)";
@@ -94,6 +134,12 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         }
     }
 
+    /**
+     * Sets the user's active channel to the given channel name.
+     *
+     * @param username username to update
+     * @param channelName channel name to set as active
+     */
     @Override
     public void UserJoinChannel(String username, String channelName) {
         try {
@@ -113,6 +159,12 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         }
     }
 
+    /**
+     * Fetches a channel by name.
+     *
+     * @param channelname channel name
+     * @return channel instance
+     */
     @Override
     public Channel GetChannel(String channelname){
         Channel channel = new Channel("Placeholder"); 
@@ -131,6 +183,11 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         return channel;
     }
     
+    /**
+     * Fetches all channels.
+     *
+     * @return list of all channels
+     */
     @Override
     public LinkedList<Channel> GetAllChannels(){
         LinkedList<Channel> channels = new LinkedList<>();
@@ -146,6 +203,12 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         return channels;
     }
     
+    /**
+     * Fetches channels that a user has permission to access.
+     *
+     * @param user username
+     * @return list of channels accessible to the user
+     */
     @Override
     public LinkedList<Channel> GetAllChannelsWhereUserIn(String user){
         LinkedList<Channel> channels = new LinkedList<>();
@@ -163,6 +226,11 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         return channels;
     }
 
+    /**
+     * Creates a new channel.
+     *
+     * @param channelName channel name to create
+     */
     @Override
     public void AddChannel(String channelName){
         String sql = "INSERT INTO Channel(name, Created_at) VALUES (?,?)";
@@ -176,6 +244,15 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         }
     }
 
+    /**
+     * Stores a message.
+     *
+     * @param userName message author username
+     * @param time message timestamp
+     * @param channelName channel name
+     * @param type message type identifier
+     * @param content message content
+     */
     @Override
     public void AddMessage(String userName, LocalDateTime time, String channelName, String type, String content){
         String sql = "INSERT INTO Message(username, time, channel, type, content) VALUES (?,?,?,?,?)";
@@ -191,6 +268,12 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         }
     }
     
+    /**
+     * Fetches all messages in a channel.
+     *
+     * @param channel channel name
+     * @return list of messages
+     */
     @Override
     public LinkedList<Message> GetAllMessagesInChannel(String channel){
         LinkedList<Message> messages = new LinkedList<>();
@@ -217,6 +300,13 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         return messages;
     }
     
+    /**
+     * Fetches messages newer than a given timestamp in a channel.
+     *
+     * @param channel channel name
+     * @param timestamp lower bound timestamp (exclusive)
+     * @return list of messages after the given timestamp
+     */
     @Override
     public LinkedList<Message> GetNewMessagesInChannelFromTimeStamp(String channel, LocalDateTime timestamp){
         LinkedList<Message> messages = new LinkedList<>();
@@ -244,6 +334,13 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         return messages;
     }
     
+    /**
+     * Verifies a username and password combination.
+     *
+     * @param username username to authenticate
+     * @param password password to authenticate
+     * @return true if credentials are valid, otherwise false
+     */
     @Override
     public boolean loginUser(String username, String password) {
         String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
@@ -258,6 +355,11 @@ public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo
         }
     }
 
+    /**
+     * Returns all users.
+     *
+     * @return list of users
+     */
     @Override
     public LinkedList<User> GetAllUsers() {
         LinkedList<User> userList = new LinkedList<>();

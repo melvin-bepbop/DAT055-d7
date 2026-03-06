@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import Models.Message;
 
 
+/**
+ * Handles a single client connection on the server side.
+ *
+ * Reads incoming messages from the client socket, forwards them to the Router,
+ * and can respond to that client or broadcast messages to all connected clients.
+ */
 public class ClientHandler implements Runnable {
     private Socket socket;
     public static ArrayList<ClientHandler> ClientHandlers = new ArrayList<>();
@@ -14,6 +20,12 @@ public class ClientHandler implements Runnable {
     private BufferedWriter bufferedWriter;
     private Router router;
 
+    /**
+     * Creates a new client handler and registers it in the global handler list.
+     *
+     * @param socket client socket
+     * @param router router used to dispatch incoming protocol messages
+     */
     public ClientHandler(Socket socket, Router router) {
         try{
             this.socket = socket; 
@@ -46,6 +58,11 @@ public class ClientHandler implements Runnable {
             }
         }
     }
+    /**
+     * Broadcasts a message to all connected clients.
+     *
+     * @param message raw protocol message to send
+     */
     public void broadcastMessage(String message){
         try{
             for(ClientHandler ch : ClientHandlers){
@@ -59,6 +76,11 @@ public class ClientHandler implements Runnable {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
+    /**
+     * Sends a message only to this client.
+     *
+     * @param message raw protocol message to send
+     */
     public void respondToClient(String message){
         try{
             this.bufferedWriter.write(message);
@@ -71,10 +93,20 @@ public class ClientHandler implements Runnable {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
+    /**
+     * Removes this handler from the global list and informs other clients.
+     */
     public void removeClientHandler(){
         ClientHandlers.remove(this);
         broadcastMessage("User has left");
     }
+    /**
+     * Closes this handler, underlying streams and socket.
+     *
+     * @param socket socket to close
+     * @param bufferedReader reader to close
+     * @param bufferedWriter writer to close
+     */
     public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){
         removeClientHandler();
         try{

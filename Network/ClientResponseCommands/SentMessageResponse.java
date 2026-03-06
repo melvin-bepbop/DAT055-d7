@@ -7,6 +7,12 @@ import Controllers.chatController;
 import Models.Message;
 import Models.MessageFactory;
 
+/**
+ * Client-side handler for SENDMSG broadcasts.
+ *
+ * Reconstructs the sent message from the protocol payload and forwards it
+ * to the chat controller if it belongs to the active channel.
+ */
 public class SentMessageResponse implements IClientResponseCommands {
 
     private chatController chatCont;
@@ -14,15 +20,30 @@ public class SentMessageResponse implements IClientResponseCommands {
     private Map<String, MessageFactory> messageRegistry;
 
 
+    /**
+     * Creates a new SentMessageResponse handler.
+     *
+     * @param registry registry mapping message types to factories
+     */
     public SentMessageResponse(Map<String, MessageFactory> registry){
         this.messageRegistry = registry;
     }
 
+    /**
+     * Updates the chat controller reference after construction.
+     *
+     * @param chatCont chat controller to use
+     */
     public void setChatCont(chatController chatCont) {
         this.chatCont = chatCont;
     }
     
     @Override
+    /**
+     * Executes the SENDMSG broadcast.
+     *
+     * @param string protocol fields: SENDMSG;channel;user;type;content;time
+     */
     public void execute(String[] string){
         // Format expected: SENDMSG;CHANNEL;USER;TYPE;CONTENT;TIME
         String Channel = string[1];

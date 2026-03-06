@@ -8,10 +8,22 @@ import Controllers.channelController;
 import Models.AccesibleChannels;
 import Models.Channel;
 
+/**
+ * View class for channel-related interactions.
+ *
+ * Manages the channel list, switching the active channel, and creating new channels
+ * by forwarding events to a channelController.
+ */
 public class channelView {
     private channelController chnlctrl;
     private IChatDisplay display; 
 
+    /**
+     * Creates a new channelView.
+     *
+     * @param controller controller that handles channel events
+     * @param display display component that contains the channel buttons
+     */
     public channelView(channelController controller, IChatDisplay display) {
         this.chnlctrl = controller;
         this.display = display;
@@ -20,6 +32,9 @@ public class channelView {
         setupCreateChannelListener();
     }
 
+    /**
+     * Attaches listeners to all existing channel buttons on startup.
+     */
     private void setupListeners() {
         // Attach the listener to all existing channels on startup
         for (int i = 0; i < display.getChannelButtons().size(); i++) {
@@ -28,6 +43,11 @@ public class channelView {
         }
     }
 
+    /**
+     * Attaches the standard click listener to a channel button.
+     *
+     * @param btn button representing a channel
+     */
     private void attachChannelListener(JButton btn) {
         btn.addActionListener(e -> {
             String targetName = btn.getText();
@@ -52,6 +72,9 @@ public class channelView {
         });
     }
 
+    /**
+     * Sets up the listener for creating a new channel via the display.
+     */
     private void setupCreateChannelListener() {
         display.getCreateChannelButton().addActionListener(e -> {
             // 1. Pop up a box asking for the new name
@@ -69,6 +92,12 @@ public class channelView {
             }
         });
     }
+
+    /**
+     * Adds a channel to the sidebar and wires up its click listener.
+     *
+     * @param channel channel to add to the sidebar
+     */
     public void AddChannelToSideBar(Channel channel){
         JButton newBtn = display.addSingleChannelButton(channel.getChannelName());
         attachChannelListener(newBtn);

@@ -43,6 +43,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+/**
+ * Client application entry point.
+ *
+ * Responsible for starting the desktop chat client: it establishes the socket
+ * connection to the server, configures the Client and ClientRouter with all
+ * response handlers, and wires together the Swing-based views, controllers and
+ * ClientSession once a user has logged in.
+ */
 public class App {
     private static LoginController loginController;
     private static Client networkClient;
@@ -50,6 +58,16 @@ public class App {
     private static channelController chanCtrl;
     private static chatController chatCtrl;
 
+    /**
+     * Starts the client, connects to the server, and launches the GUI.
+     *
+     * This method bootstraps protocol handlers, opens the TCP connection,
+     * starts the background listener thread, and then creates the login view.
+     * After a successful login it builds the main chat window and registers
+     * all client-side response commands.
+     *
+     * @param args command line arguments (unused)
+     */
     public static void main(String[] args) {
         LinkedList<Channel> channelList = new LinkedList<>();
         AccesibleChannels accessible = new AccesibleChannels(channelList);
@@ -79,7 +97,6 @@ public class App {
             return; 
         }
 
-        ///FIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIX UNDER
 
         SwingUtilities.invokeLater(() -> {
             

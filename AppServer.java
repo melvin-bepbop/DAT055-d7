@@ -29,7 +29,26 @@ import Services.MessageService;
 import Services.UserService;
 
 
+/**
+ * Server application entry point.
+ *
+ * Responsible for bootstrapping the backend: it creates and connects the
+ * PostgresTranslator (implementing all repository interfaces), registers each
+ * network command with a Router, and starts the TCP Server on a fixed port.
+ * It also constructs service-layer classes that encapsulate higher-level
+ * user, channel and message operations.
+ */
 public class AppServer {
+    /**
+     * Starts the chat server and listens for client connections.
+     *
+     * This method wires the Router to database-backed command handlers, binds
+     * a ServerSocket to port 8080, and begins accepting clients through the
+     * Server wrapper. It then initialises service objects that can be used for
+     * higher-level server logic.
+     *
+     * @param args command line arguments (unused)
+     */
     public static void main(String[] args) {
         PostgresTranslator db = new PostgresTranslator();
         db.registerMessageType("text", (u, c, t) -> new TextMessage(u, c, t));

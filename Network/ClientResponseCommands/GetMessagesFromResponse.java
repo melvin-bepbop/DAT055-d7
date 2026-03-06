@@ -9,30 +9,55 @@ import Controllers.chatController;
 import Models.AccesibleChannels;
 import Models.Message;
 import Models.Channel;
-import Models.MessageFactory; // Reuse the awesome interface you already made!
+import Models.MessageFactory;
 
+/**
+ * Client-side handler for GETMSGSFROM responses.
+ *
+ * Builds Message objects for new messages in a channel and asks the chat
+ * controller to update the cached history.
+ */
 public class GetMessagesFromResponse implements IClientResponseCommands {
 
     private channelController chanCont;
     private chatController chatcont;
     
-    // THE SECRET WEAPON: A dictionary of message blueprints
     private Map<String, MessageFactory> messageRegistry;
 
-    // Inject the registry through the constructor
+    /**
+     * Creates a new GetMessagesFromResponse handler.
+     *
+     * @param channelControll channel controller used to resolve channels
+     * @param registry registry mapping message types to factories
+     */
     public GetMessagesFromResponse(channelController channelControll, Map<String, MessageFactory> registry){
         this.chanCont = channelControll;
         this.messageRegistry = registry;
     }
-        public void SetChannelController(channelController channelControll){
+    /**
+     * Updates the channel controller reference after construction.
+     *
+     * @param channelControll channel controller to use
+     */
+    public void SetChannelController(channelController channelControll){
         this.chanCont = channelControll;
     }
 
+    /**
+     * Updates the chat controller reference after construction.
+     *
+     * @param chatCont chat controller to use
+     */
     public void setChaCont(chatController chatCont) {
         this.chatcont = chatCont;
     }
 
     @Override
+    /**
+     * Executes the GETMSGSFROM response.
+     *
+     * @param string protocol fields: GETMSGSFROM;channel;user;type;content;time;...
+     */
     public void execute(String[] string){
         if (!string[1].equals("FAIL")) {
             AccesibleChannels accessible = chanCont.GetAllChannels();
@@ -49,17 +74,14 @@ public class GetMessagesFromResponse implements IClientResponseCommands {
             LinkedList<Message> msgs = new LinkedList<>();
             
             for(int i = 2; i < string.length; i+=4){
-                // 1. Extract the raw string data to make it easier to read
                 String user = string[i];
                 String type = string[i+1].toLowerCase();
                 String content = string[i+2];
                 LocalDateTime time = LocalDateTime.parse(string[i+3]);
 
-                // 2. THE SOLID FIX: Look up the blueprint in the dictionary!
                 MessageFactory factory = messageRegistry.get(type);
                 
                 if (factory != null) {
-                    // Tell the factory to build it, we don't care if it's text or image!
                     msgs.add(factory.create(user, content, time));
                     System.out.println("Added " + type /*+ " message: " + ((i/4) + 1)*/);
                 } else {
