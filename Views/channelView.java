@@ -10,11 +10,11 @@ import Models.Channel;
 
 public class channelView {
     private channelController chnlctrl;
-    private GUI gui;
+    private IChatDisplay display; 
 
-    public channelView(channelController controller, GUI gui) {
+    public channelView(channelController controller, IChatDisplay display) {
         this.chnlctrl = controller;
-        this.gui = gui;
+        this.display = display;
 
         setupListeners();
         setupCreateChannelListener();
@@ -22,8 +22,8 @@ public class channelView {
 
     private void setupListeners() {
         // Attach the listener to all existing channels on startup
-        for (int i = 0; i < gui.getChannelButtons().size(); i++) {
-            JButton btn = gui.getChannelButtons().get(i);
+        for (int i = 0; i < display.getChannelButtons().size(); i++) {
+            JButton btn = display.getChannelButtons().get(i);
             attachChannelListener(btn);
         }
     }
@@ -53,9 +53,9 @@ public class channelView {
     }
 
     private void setupCreateChannelListener() {
-        gui.getCreateChannelButton().addActionListener(e -> {
+        display.getCreateChannelButton().addActionListener(e -> {
             // 1. Pop up a box asking for the new name
-            String newChannelName = JOptionPane.showInputDialog(gui.getFrame(), "Enter new channel name:");
+            String newChannelName = JOptionPane.showInputDialog(display.getFrame(), "Enter new channel name:");
             
             // 2. Make sure they didn't hit 'Cancel' or leave it blank
             if (newChannelName != null && !newChannelName.trim().isEmpty()) {
@@ -70,7 +70,7 @@ public class channelView {
         });
     }
     public void AddChannelToSideBar(Channel channel){
-        JButton newBtn = gui.addSingleChannelButton(channel.getChannelName());
+        JButton newBtn = display.addSingleChannelButton(channel.getChannelName());
         attachChannelListener(newBtn);
     }
 }

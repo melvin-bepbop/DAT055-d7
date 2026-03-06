@@ -1,6 +1,10 @@
 package Views;
 
 import java.io.File;
+import java.util.LinkedList;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
 
 public interface IChatDisplay {
     // 1. Matches your exact GUI method: addMessage()
@@ -18,4 +22,11 @@ public interface IChatDisplay {
     File promptUserForImageFile(); 
     void onSendAction(Runnable action);
     void onImageUploadAction(Runnable action);
+    
+    //channel stuff
+    JButton getCreateChannelButton();
+    LinkedList<JButton> getChannelButtons();
+    JButton addSingleChannelButton(String name);
+    JFrame getFrame();
+
 }
