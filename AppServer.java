@@ -42,7 +42,7 @@ public class AppServer {
      * @param args command line arguments (unused)
      */
     public static void main(String[] args) {
-        PostgresTranslator db = new PostgresTranslator();
+        PostgresTranslator db = PostgresTranslator.getInstance();
         db.registerMessageType("text", (u, c, t) -> new TextMessage(u, c, t));
         db.registerMessageType("image", (u, c, t) -> new ImageMessage(u, c, t));
         db.connect();

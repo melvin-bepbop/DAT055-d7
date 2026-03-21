@@ -18,14 +18,35 @@ import Models.MessageFactory;
  * channel management, and message persistence and retrieval.
  */
 public class PostgresTranslator implements IUserRepo, IChannelRepo, IMessageRepo {
+
+    private static volatile PostgresTranslator instance;
     
+
+    private PostgresTranslator() {
+        
+        connect(); 
+    }
+    /**
+     * Global access point for the PostgresTranslator instance.
+     * * @return The single instance of PostgresTranslator
+     */
+    public static PostgresTranslator getInstance() {
+        if (instance == null) {
+            synchronized (PostgresTranslator.class) {
+                if (instance == null) {
+                    instance = new PostgresTranslator();
+                }
+            }
+        }
+        return instance;
+    }
+
     private final String URL = "jdbc:postgresql://localhost:5432/chat_project";
     private final String USER = "postgres";
     private final String PASS = "postgres";
     private Connection conn;
 
     private final Map<String, MessageFactory> messageRegistry = new HashMap<>();
-
     /**
      * Registers a factory used to create message objects when reading from the database.
      *
