@@ -1,4 +1,6 @@
 package Models;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.LinkedList;
 
 /**
@@ -7,11 +9,12 @@ import java.util.LinkedList;
  * Stores active user, active channel, accessible channels, and cached
  * message history per channel.
  */
-public class ClientSession {
+public class ClientSession implements ISessionModel {
     private User activeUser;
     private Channel activeChannel;
     private AccesibleChannels accesibleChannels;
     private LinkedList<MessagesInChannel> msgHistoryInChannels;
+    private final PropertyChangeSupport support;
 
     /**
      * Creates a new client session.
@@ -25,6 +28,14 @@ public class ClientSession {
         this.activeChannel = startChannel;
         this.accesibleChannels = initialChannels;
         this.msgHistoryInChannels = new LinkedList<>();
+        this.support = new PropertyChangeSupport(this);
+    }
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        support.addPropertyChangeListener(pcl);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
+        support.removePropertyChangeListener(pcl);
     }
 
     /**
@@ -61,7 +72,10 @@ public class ClientSession {
      * @param newChannel new active channel
      */
     public void changeChannel(Channel newChannel) {
+        Channel oldChannel = this.activeChannel;
         this.activeChannel = newChannel; 
+        
+        support.firePropertyChange("activeChannelChanged", oldChannel, newChannel);
     }
     /**
      * Retrieves history messages for the active channel.
@@ -83,5 +97,35 @@ public class ClientSession {
      */
     public void addChannelHistory(MessagesInChannel msgInChnl){
        msgHistoryInChannels.add(msgInChnl); 
+       if (msgInChnl.getChannel().getChannelName().equals(activeChannel.getChannelName())) {
+           support.firePropertyChange("chatHistoryUpdated", null, getHistoryForActiveChannel());
+       }
+    }
+    /**
+     * Adds a newly created/joined channel to the accessible list and notifies the View.
+     */
+    public void addAccessibleChannel(Channel channel) {
+        this.accesibleChannels.addChannel(channel);
+        support.firePropertyChange("newChannelAdded", null, channel);
+    }
+    /**
+     * Appends new messages to an existing channel's history and notifies observers.
+     * Moving this logic here keeps the Controller out of the Model's internal lists.
+     *
+     * @param channel the channel to update
+     * @param msgs the new messages to append
+     */
+    public void appendMessagesToChannel(Channel channel, LinkedList<Message> msgs) {
+        for (MessagesInChannel folder : msgHistoryInChannels) {
+            if (folder.getChannel().getChannelName().equals(channel.getChannelName())) {
+                folder.addMessages(msgs);
+                
+                
+                if (channel.getChannelName().equals(activeChannel.getChannelName())) {
+                    support.firePropertyChange("chatHistoryUpdated", null, getHistoryForActiveChannel());
+                }
+                return;
+            }
+        }
     }
 }

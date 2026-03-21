@@ -1,9 +1,13 @@
 package Network.ClientResponseCommands;
 
-import Controllers.channelController;
-import Controllers.chatController;
+
+import Models.ISessionModel;
+import Models.MessagesInChannel;
 import Models.Channel;
 import Models.AccesibleChannels;
+import Network.Client;
+import Network.NetworkCommands.GetAllMessageCommand;
+import Network.NetworkCommands.GetMessagesFromCommand;
 
 
 /**
@@ -14,34 +18,18 @@ import Models.AccesibleChannels;
  */
 public class ChangeChannelResponse implements IClientResponseCommands {
 
-    private channelController chanCont;
-    private chatController chatCont;
+    private ISessionModel session;
+    private Client networkClient;
 
-    /**
+/**
      * Creates a new ChangeChannelResponse handler.
      *
-     * @param channelControll channel controller to update
-     * @param chatController chat controller to notify about channel changes
+     * @param session the application state model
+     * @param networkClient the client used to send follow-up requests for chat history
      */
-    public ChangeChannelResponse(channelController channelControll, chatController chatController){
-        this.chanCont = channelControll;
-        this.chatCont = chatController;
-    }
-    /**
-     * Updates the channel controller reference after construction.
-     *
-     * @param channelControll channel controller to use
-     */
-    public void SetChannelController(channelController channelControll){
-        this.chanCont = channelControll;
-    }
-    /**
-     * Updates the chat controller reference after construction.
-     *
-     * @param chatCont chat controller to use
-     */
-    public void setChatCont(chatController chatCont) {
-        this.chatCont = chatCont;
+    public ChangeChannelResponse(ISessionModel session, Client networkClient) {
+        this.session = session;
+        this.networkClient = networkClient;
     }
 
     @Override
@@ -53,7 +41,7 @@ public class ChangeChannelResponse implements IClientResponseCommands {
     public void execute(String[] string){
         if (!string[1].equals("FAIL")) {
 
-            AccesibleChannels accessible = chanCont.GetAllChannels();
+            AccesibleChannels accessible = session.getAccesibleChannels();
             Channel targetChannel = null;
 
             for (Channel c : accessible.getChannels()) {
@@ -62,12 +50,34 @@ public class ChangeChannelResponse implements IClientResponseCommands {
                     break;
                 }
             }
-            chanCont.changeChannel(targetChannel);
-            chatCont.ChangingChat(targetChannel);
+           if (targetChannel != null) {
+                session.changeChannel(targetChannel);
+
+                boolean isLoaded = false;
+                MessagesInChannel hstr = new MessagesInChannel(targetChannel);
+                
+                for (MessagesInChannel messagesInChannel : session.getMsgHistoryInChannels()) {
+                    if(messagesInChannel.getChannel().getChannelName().equals(targetChannel.getChannelName())){
+                        isLoaded = true;
+                        hstr = messagesInChannel;
+                        break;
+                    }
+                }
+                
+                if (!isLoaded) {
+                    networkClient.sendMessage(GetAllMessageCommand.identifier + ";" + targetChannel.getChannelName());
+                } else {
+                    networkClient.sendMessage(GetMessagesFromCommand.identifier + ";" + targetChannel.getChannelName() + ";" + hstr.getLastUpdated().toString());
+                }
+            
         }
 
-       else{
+       else {
+                System.out.println("Error: Target channel " + string[1] + " not found in accessible channels.");
+            }
+    }
+    else{
             System.out.println("Error couldnt change channel");
         }
-    }
+}
 }

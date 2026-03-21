@@ -1,8 +1,9 @@
 package Network.ClientResponseCommands;
 
 
-import Controllers.channelController;
+import Models.ISessionModel;
 import Models.Channel;
+
 
 
 /**
@@ -12,23 +13,15 @@ import Models.Channel;
  */
 public class NewChannelResponse implements IClientResponseCommands {
 
-    private channelController chanCont;
+    private ISessionModel session;
 
-    /**
+ /**
      * Creates a new NewChannelResponse handler.
      *
-     * @param channelControll channel controller to update
+     * @param session the application state model
      */
-    public NewChannelResponse(channelController channelControll){
-        this.chanCont = channelControll;
-    }
-    /**
-     * Updates the channel controller reference after construction.
-     *
-     * @param channelControll channel controller to use
-     */
-    public void SetChannelController(channelController channelControll){
-        this.chanCont = channelControll;
+    public NewChannelResponse(ISessionModel session){
+        this.session = session;
     }
  
     @Override
@@ -39,7 +32,7 @@ public class NewChannelResponse implements IClientResponseCommands {
      */
     public void execute(String[] string){
         //NEWCHNL;CHANNEL
-        chanCont.AddToAccesibleChannels(new Channel(string[1]));
+        session.addAccessibleChannel(new Channel(string[1]));
         
     }
 }

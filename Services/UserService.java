@@ -47,7 +47,7 @@ public class UserService {
         return userRepo.createUser(username, password);
     }
     
-    // Logic for fetching all users (if needed for things like admin lists)
+    // Logic for fetching all users 
     /**
      * Fetches all users.
      *

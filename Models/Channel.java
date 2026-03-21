@@ -51,6 +51,14 @@ public class Channel {
         return channelName;
     }
 
+    /**
+     * Returns the time when the channel was created.
+     *
+     * @return creation time
+     */
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
    
 
   

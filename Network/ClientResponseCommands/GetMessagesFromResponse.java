@@ -4,12 +4,12 @@ import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.Map;
 
-import Controllers.channelController;
-import Controllers.chatController;
+
 import Models.AccesibleChannels;
 import Models.Message;
 import Models.Channel;
 import Models.MessageFactory;
+import Models.ISessionModel;
 
 /**
  * Client-side handler for GETMSGSFROM responses.
@@ -19,37 +19,19 @@ import Models.MessageFactory;
  */
 public class GetMessagesFromResponse implements IClientResponseCommands {
 
-    private channelController chanCont;
-    private chatController chatcont;
+    private ISessionModel session;
     
     private Map<String, MessageFactory> messageRegistry;
 
-    /**
+/**
      * Creates a new GetMessagesFromResponse handler.
      *
-     * @param channelControll channel controller used to resolve channels
+     * @param session the application state model
      * @param registry registry mapping message types to factories
      */
-    public GetMessagesFromResponse(channelController channelControll, Map<String, MessageFactory> registry){
-        this.chanCont = channelControll;
+    public GetMessagesFromResponse(ISessionModel session, Map<String, MessageFactory> registry){
+        this.session = session;
         this.messageRegistry = registry;
-    }
-    /**
-     * Updates the channel controller reference after construction.
-     *
-     * @param channelControll channel controller to use
-     */
-    public void SetChannelController(channelController channelControll){
-        this.chanCont = channelControll;
-    }
-
-    /**
-     * Updates the chat controller reference after construction.
-     *
-     * @param chatCont chat controller to use
-     */
-    public void setChaCont(chatController chatCont) {
-        this.chatcont = chatCont;
     }
 
     @Override
@@ -60,7 +42,7 @@ public class GetMessagesFromResponse implements IClientResponseCommands {
      */
     public void execute(String[] string){
         if (!string[1].equals("FAIL")) {
-            AccesibleChannels accessible = chanCont.GetAllChannels();
+            AccesibleChannels accessible = session.getAccesibleChannels();
             Channel targetChannel = null;
             
             for (Channel c : accessible.getChannels()) {
@@ -68,6 +50,10 @@ public class GetMessagesFromResponse implements IClientResponseCommands {
                     targetChannel = c;
                     break;
                 }
+            if (targetChannel == null) {
+                System.out.println("Error: Target channel " + string[1] + " not found in accessible channels.");
+                return;
+            }
             }
             System.out.println("Getting new messages from "+ targetChannel);
 
@@ -88,7 +74,7 @@ public class GetMessagesFromResponse implements IClientResponseCommands {
                     System.out.println("Warning: Unknown message type received: " + type);
                 }
             }
-             chatcont.updateChannelHistory(targetChannel, msgs);
+             session.appendMessagesToChannel(targetChannel, msgs);
         }
         else{
             System.out.println("Error couldnt find any messages");

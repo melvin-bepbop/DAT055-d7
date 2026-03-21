@@ -1,6 +1,5 @@
 package Network.NetworkCommands;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import Database.IChannelRepo;
@@ -34,7 +33,7 @@ public class GetServersCommand implements INetworkCommand{
      * @param sender client handler that sent the request
      */
     public void execute(String[] data, ClientHandler sender){
-        String username = data[1];
+        //String username = data[1];
         LinkedList<Channel> channels  = channelRepo.GetAllChannels();
         if (channels != null) {
             String msg = "" + identifier;
@@ -51,13 +50,3 @@ public class GetServersCommand implements INetworkCommand{
 }
 
 
-/*
-package Network.NetworkCommands;
-
-import Database.IUserRepo;
-import Network.ClientHandler;
-
-public class SignupCommand {
-    
-}
- */

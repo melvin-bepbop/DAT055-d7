@@ -3,8 +3,8 @@ package Views;
 import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
-import java.io.File; // Added for File chooser
-import Utils.ImageUtils; // Added for Base64 translation
+import java.io.File; 
+import Utils.ImageUtils; 
 
 /**
  * Main GUI for the client.
@@ -12,7 +12,7 @@ import Utils.ImageUtils; // Added for Base64 translation
  * Builds the chat window, channel list, and input controls using Swing components
  * and implements IChatDisplay to act as the bridge to controllers.
  */
-public class GUI implements IChatDisplay { // <-- Added 'implements IChatDisplay'
+public class GUI implements IChatDisplay { 
     private JPanel chatHistoryPanel;
     private JScrollPane scrollPane;
     private JPanel channelListPanel;
@@ -287,10 +287,6 @@ public class GUI implements IChatDisplay { // <-- Added 'implements IChatDisplay
         return chanBtn;
     }
 
-    // ======================================================================
-    // --- IChatDisplay INTERFACE IMPLEMENTATIONS (The "Translator" logic) ---
-    // ======================================================================
-
 
     /**
      * IChatDisplay implementation that renders an image from Base64 data.
@@ -304,7 +300,7 @@ public class GUI implements IChatDisplay { // <-- Added 'implements IChatDisplay
     public void addImageMessage(String username, String base64Data, String time, boolean isMe) {
         ImageIcon icon = ImageUtils.decodeBase64ToImage(base64Data);
         if (icon != null) {
-            this.addImageMessage(username, icon, time, isMe); // Maps to your existing logic
+            this.addImageMessage(username, icon, time, isMe); 
         }
     }
 
@@ -331,7 +327,7 @@ public class GUI implements IChatDisplay { // <-- Added 'implements IChatDisplay
     @Override
     public void onSendAction(Runnable action) {
         this.sendButton.addActionListener(e -> action.run());
-        this.inputField.addActionListener(e -> action.run()); // So "Enter" works too!
+        this.inputField.addActionListener(e -> action.run()); 
     }
 
     /**

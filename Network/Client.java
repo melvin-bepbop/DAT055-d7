@@ -1,8 +1,7 @@
 package Network;
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+
 
 /**
  * TCP client wrapper for the chat application.
@@ -14,7 +13,6 @@ public class Client {
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
-    private String username;
     private ClientRouter clientRouter;
 
     /**
@@ -26,12 +24,11 @@ public class Client {
      * @param clientRouter router that dispatches incoming messages
      * @param username local username label for this connection
      */
-    public Client (Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter, ClientRouter clientRouter, String username){
+    public Client (Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter, ClientRouter clientRouter){
         this.socket = socket;
         this.bufferedReader = bufferedReader;
         this.bufferedWriter = bufferedWriter;
         this.clientRouter = clientRouter;
-        this.username = username;
     }
 
 
@@ -43,8 +40,8 @@ public class Client {
   public void sendMessage(String message) {
         try {
             bufferedWriter.write(message);
-            bufferedWriter.newLine(); // Very important! Tells the server the message is done
-            bufferedWriter.flush();   // Pushes it out immediately
+            bufferedWriter.newLine(); 
+            bufferedWriter.flush();   
         } catch (IOException e) {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
@@ -65,7 +62,7 @@ public class Client {
 
                         //System.out.println(message);
                         clientRouter.handleRequest(message);
-                        //----------------
+                        
 
                     } catch(IOException e){
                         closeEverything(socket, bufferedReader, bufferedWriter);

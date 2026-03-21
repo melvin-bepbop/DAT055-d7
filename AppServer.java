@@ -12,16 +12,8 @@ import Network.NetworkCommands.LoginCommand;
 import Network.NetworkCommands.SendMessageCommand;
 import Network.NetworkCommands.SignupCommand;
 import Database.PostgresTranslator;
-import Controllers.channelController;
-import Controllers.chatController;
-import Database.PostgresTranslator;
-import Models.AccesibleChannels;
-import Models.Channel;
-import Models.ClientSession;
 import Models.ImageMessage;
 import Models.TextMessage;
-//import Models.serverModel;
-import Models.User;
 import Services.ChannelService;
 import Services.GlobalAccessRule;
 import Services.IChannelAccessRule;
@@ -82,12 +74,12 @@ public class AppServer {
 
 
 
-        UserService userService = new UserService(db);
+         new UserService(db);
         IChannelAccessRule myRule = new GlobalAccessRule();
 
-        ChannelService channelService = new ChannelService(db, db, myRule);
-        MessageService messageService = new MessageService(db);
-       // serverModel sm = new serverModel(userService, messageService, channelService);
+         new ChannelService(db, db, myRule);
+         new MessageService(db);
+       
     }
     
 }

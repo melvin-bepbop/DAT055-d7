@@ -1,7 +1,8 @@
 package Network.ClientResponseCommands;
 
-import Controllers.channelController;
-
+import Models.ISessionModel;
+import Network.Client;
+import Network.NetworkCommands.GetAllMessageCommand;
 import Models.Channel;
 
 /**
@@ -12,23 +13,17 @@ import Models.Channel;
  */
 public class GetServersResponse implements IClientResponseCommands {
 
-    private channelController chanCont;
+    private ISessionModel session;
+    private Client networkClient;
 
     /**
      * Creates a new GetServersResponse handler.
      *
-     * @param channelControll controller that manages channel state
+     * @param session the application state model
      */
-    public GetServersResponse(channelController channelControll){
-        this.chanCont = channelControll;
-    }
-    /**
-     * Updates the channel controller reference after construction.
-     *
-     * @param channelControll controller that manages channel state
-     */
-    public void SetChannelController(channelController channelControll){
-        this.chanCont = channelControll;
+    public GetServersResponse(ISessionModel session, Client networkClient) {
+        this.session = session;
+        this.networkClient = networkClient;
     }
 
     @Override
@@ -40,12 +35,13 @@ public class GetServersResponse implements IClientResponseCommands {
     public void execute(String[] string){
         if (!string[1].equals("FAIL")) {
             Channel firstChannel = new Channel(string[1]);
-            chanCont.AddToAccesibleChannels(firstChannel);
+            session.addAccessibleChannel(firstChannel);
+            networkClient.sendMessage(GetAllMessageCommand.identifier + ";" + firstChannel.getChannelName());
             for (int i = 2; i < string.length; i++) {
                 String name = string[i];
-                chanCont.AddToAccesibleChannels(new Channel(name));
+                session.addAccessibleChannel(new Channel(name));
             }
-            chanCont.changeChannel(firstChannel);
+            session.changeChannel(firstChannel);
             
         }
         else{

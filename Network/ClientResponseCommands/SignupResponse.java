@@ -1,5 +1,5 @@
 package Network.ClientResponseCommands;
-import Controllers.LoginController;
+
 
 /**
  * Client-side handler for SIGNUP responses.
@@ -7,14 +7,14 @@ import Controllers.LoginController;
  * Notifies the LoginController when account creation succeeds or fails.
  */
 public class SignupResponse implements IClientResponseCommands{
-    private LoginController loginController;
+    private ISignupHandler signupHandler;
     /**
      * Creates a new SignupResponse handler.
      *
-     * @param loginController controller to notify about signup results
+     * @param signupHandler handler to notify about signup results
      */
-    public SignupResponse(LoginController loginController){
-        this.loginController = loginController;
+    public SignupResponse(ISignupHandler signupHandler) {
+        this.signupHandler = signupHandler;
     }
 
     @Override
@@ -25,17 +25,10 @@ public class SignupResponse implements IClientResponseCommands{
      */
     public void execute(String[] string){
         if(!string[1].equals("FAIL") ){
-            loginController.handleRegisterSuccess();
+            signupHandler.handleRegisterSuccess();
         }
         else{
-            loginController.handleRegisterFailure();;
+            signupHandler.handleRegisterFailure();;
         }
     }
 }
-/*
-package Network.ClientResponseCommands;
-
-public class LoginResponse 
-
-    
-}*/

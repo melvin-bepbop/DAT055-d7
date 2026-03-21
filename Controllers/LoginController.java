@@ -1,9 +1,11 @@
 package Controllers;
 
 import Models.User;
-import Views.LoginView;
-import Network.Client; // <-- We use your Network Client now!
+import Views.ILoginView;
+import Network.Client; 
 import Network.NetworkCommands.LoginCommand;
+import Network.ClientResponseCommands.ILoginHandler;
+import Network.ClientResponseCommands.ISignupHandler;
 import Network.NetworkCommands.SignupCommand;
 
 /**
@@ -13,58 +15,48 @@ import Network.NetworkCommands.SignupCommand;
  * using the text-based socket protocol. On successful login it initializes the local user
  * and executes the provided success callback.
  */
-public class LoginController {
-    private LoginView view;
+public class LoginController implements ILoginView.ViewListener, ILoginHandler, ISignupHandler {
+    private ILoginView view;
     private Runnable onLoginSuccess; 
     private User loggedInUser;
     
     private Client networkClient; 
 
-    /**
+/**
      * Creates a controller for the given login view.
      *
-     * @param view the login UI to bind listeners to
+     * @param view the abstract login UI
      * @param onLoginSuccess callback executed after a successful login
      * @param networkClient network client used to send requests to the server
      */
-    public LoginController(LoginView view, Runnable onLoginSuccess, Client networkClient) {
+    public LoginController(ILoginView view, Runnable onLoginSuccess, Client networkClient) {
         this.view = view;
         this.onLoginSuccess = onLoginSuccess;
         this.networkClient = networkClient;
-        setupListeners();
+        
+        this.view.setViewListener(this);
     }
 
-    private void setupListeners() {
-        // SENDING THE LOGIN REQUEST
-        view.addLoginListener(e -> {
-            String username = view.getUsername();
-            String password = view.getPassword();
+    @Override
+    public void onLoginRequested(String username, String password) {
+        if (username.isEmpty() || password.isEmpty()) {
+            view.showError("Please enter both username and password.");
+            return;
+        }
 
-            if (username.isEmpty() || password.isEmpty()) {
-                view.showError("Please enter both username and password.");
-                return;
-            }
+        String payload = LoginCommand.identifier + ";" + username + ";" + password;
+        networkClient.sendMessage(payload);
+    }
 
-            String payload = LoginCommand.identifier + ";" + username + ";" + password;
-            networkClient.sendMessage(payload);
-            
-        });
+    @Override
+    public void onSignupRequested(String username, String password) {
+        if (username.isEmpty() || password.isEmpty()) {
+            view.showError("Please enter both username and password.");
+            return;
+        }
 
-        // SENDING THE REGISTER REQUEST 
-        view.addCreateAccountListener(e -> {
-            String username = view.getUsername();
-            String password = view.getPassword();
-
-            if (username.isEmpty() || password.isEmpty()) {
-                view.showError("Please enter both username and password.");
-                return;
-            }
-
-   
-            String payload = SignupCommand.identifier +";" + username + ";" + password;
-            networkClient.sendMessage(payload);
-            
-        });
+        String payload = SignupCommand.identifier + ";" + username + ";" + password;
+        networkClient.sendMessage(payload);
     }
 
 

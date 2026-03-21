@@ -1,4 +1,13 @@
 import javax.swing.SwingUtilities;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 import Controllers.LoginController;
 import Controllers.channelController;
@@ -16,80 +25,33 @@ import Views.channelView;
 import Views.chatView;
 import Network.Client;
 import Network.ClientRouter;
-import Network.ClientResponseCommands.ChangeChannelResponse;
-import Network.ClientResponseCommands.GetAllMessageResponse;
-import Network.ClientResponseCommands.GetMessagesFromResponse;
-import Network.ClientResponseCommands.GetServersResponse;
-import Network.ClientResponseCommands.LoginResponse;
-import Network.ClientResponseCommands.NewChannelResponse;
-import Network.ClientResponseCommands.SentMessageResponse;
-import Network.ClientResponseCommands.SignupResponse;
-import Network.NetworkCommands.ChangeChannelCommand;
-import Network.NetworkCommands.CreateNewChannelCommand;
-import Network.NetworkCommands.GetAllMessageCommand;
-import Network.NetworkCommands.GetMessagesFromCommand;
-import Network.NetworkCommands.GetServersCommand;
-import Network.NetworkCommands.LoginCommand;
-import Network.NetworkCommands.SendMessageCommand;
-import Network.NetworkCommands.SignupCommand;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import Network.ClientResponseCommands.*;
+import Network.NetworkCommands.*;
 
 /**
  * Client application entry point.
  *
  * Responsible for starting the desktop chat client: it establishes the socket
  * connection to the server, configures the Client and ClientRouter with all
- * response handlers, and wires together the Swing-based views, controllers and
- * ClientSession once a user has logged in.
+ * response handlers, and wires together the MVC components.
  */
 public class App {
     private static LoginController loginController;
     private static Client networkClient;
     private static ClientRouter clientRouter;
-    private static channelController chanCtrl;
-    private static chatController chatCtrl;
 
-    /**
-     * Starts the client, connects to the server, and launches the GUI.
-     *
-     * This method bootstraps protocol handlers, opens the TCP connection,
-     * starts the background listener thread, and then creates the login view.
-     * After a successful login it builds the main chat window and registers
-     * all client-side response commands.
-     *
-     * @param args command line arguments (unused)
-     */
     public static void main(String[] args) {
-        LinkedList<Channel> channelList = new LinkedList<>();
-        AccesibleChannels accessible = new AccesibleChannels(channelList);
+    
         clientRouter = new ClientRouter();
-        Map<String, MessageFactory> clientRegistry = new HashMap<>();
-        clientRegistry.put("text", (u, c, t) -> new TextMessage(u, c, t));
-        clientRegistry.put("image", (u, c, t) -> new ImageMessage(u, c, t));
-        GetServersResponse gsr = new GetServersResponse(chanCtrl);
-        GetAllMessageResponse gamr = new GetAllMessageResponse(chanCtrl, clientRegistry);
-        ChangeChannelResponse ccr = new ChangeChannelResponse(chanCtrl, chatCtrl);
-        GetMessagesFromResponse gmfr = new GetMessagesFromResponse(chanCtrl, clientRegistry);
-        SentMessageResponse smr = new SentMessageResponse(clientRegistry);
-        NewChannelResponse ncr = new NewChannelResponse(chanCtrl);
 
 
-        try{
+        try {
             Socket socket = new Socket("localhost", 8080);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             
-            networkClient = new Client(socket, bufferedReader, bufferedWriter, clientRouter, "Guest");
             
+            networkClient = new Client(socket, bufferedReader, bufferedWriter, clientRouter);
             networkClient.listenForMessage();
             
         } catch (IOException e) {
@@ -97,91 +59,62 @@ public class App {
             return; 
         }
 
-
+        
         SwingUtilities.invokeLater(() -> {
             
-            // Create the Login UI
             LoginView loginView = new LoginView();
+            
             
             Runnable onLoginSuccess = () -> {                
                 User currentUser = loginController.getLoggedInUser();
                 
-                networkClient.sendMessage(GetServersCommand.identifier+";"+currentUser.getUsername());
                 
+                AccesibleChannels accessible = new AccesibleChannels(new LinkedList<>());
                 Channel startingChannel = new Channel("Loading...");
-                if (!channelList.isEmpty()) {
-                    startingChannel = channelList.get(0);
-                } else {
-                    System.out.println("Warning: This user has no assigned channels!");
-                }
 
+                
                 ClientSession session = new ClientSession(currentUser, startingChannel, accessible);
 
-                // BUILD THE UI
-              String[] channelNames = new String[channelList.size()];
-                for (int i = 0; i < channelList.size(); i++) {
-                    channelNames[i] = channelList.get(i).getChannelName();
-                }
                 
-                GUI mygui = new GUI(channelNames);
+                GUI mygui = new GUI(new String[0]); 
                 chatView cView = new chatView(mygui);
+                channelView chanView = new channelView(mygui);
 
+                
                 cView.registerRenderer("text", (msg, g, time, isMe) -> {
                     g.addMessage(msg.getUsername(), msg.getContent(), time, isMe);
                 });
-
                 cView.registerRenderer("image", (msg, g, time, isMe) -> {
-
                     g.addImageMessage(msg.getUsername(), msg.getContent(), time, isMe);
                 });
 
-                // CREATE CONTROLLERS 
                 
+                new chatController(session, cView, networkClient);
+                new channelController(session, networkClient, chanView);
 
-                 chatCtrl = new chatController(session, cView, networkClient);
-                chanCtrl = new channelController(session, networkClient, cView);
-                gsr.SetChannelController(chanCtrl);
-
-                // CONNECT VIEWS
-                cView.setController(chatCtrl);
                 
-               
-                channelView chanView = new channelView(chanCtrl, mygui);
+                Map<String, MessageFactory> clientRegistry = new HashMap<>();
+                clientRegistry.put("text", (u, c, t) -> new TextMessage(u, c, t));
+                clientRegistry.put("image", (u, c, t) -> new ImageMessage(u, c, t));
 
-                chanCtrl.setChanView(chanView);
-                ccr.SetChannelController(chanCtrl);
-                gamr.SetChannelController(chanCtrl);
-                gsr.SetChannelController(chanCtrl);
-                ccr.setChatCont(chatCtrl);
-                gamr.setChaCont(chatCtrl);;
-                gmfr.SetChannelController(chanCtrl);
-                gmfr.setChaCont(chatCtrl);
-                smr.setChatCont(chatCtrl);
-                ncr.SetChannelController(chanCtrl);
+                clientRouter.registerCommand(GetServersCommand.identifier, new GetServersResponse(session, networkClient));
+                clientRouter.registerCommand(ChangeChannelCommand.identifier, new ChangeChannelResponse(session, networkClient));
+                clientRouter.registerCommand(GetAllMessageCommand.identifier, new GetAllMessageResponse(session, clientRegistry));
+                clientRouter.registerCommand(GetMessagesFromCommand.identifier, new GetMessagesFromResponse(session, clientRegistry));
+                clientRouter.registerCommand(SendMessageCommand.identifier, new SentMessageResponse(session, clientRegistry));
+                clientRouter.registerCommand(CreateNewChannelCommand.identifier, new NewChannelResponse(session));
 
-
-
-                // LOAD THE FIRST ROOM 
- 
-                chanCtrl.changeChannel(startingChannel); 
+                
+                networkClient.sendMessage(GetServersCommand.identifier + ";" + currentUser.getUsername());
             };
 
-            //Create the Login Controller
-            loginController = new LoginController(loginView, onLoginSuccess, networkClient);
             
-            loginView.show();
-            //regsiter commands
-            clientRouter.registerCommand(GetServersCommand.identifier, gsr);
+            loginController = new LoginController(loginView, onLoginSuccess, networkClient);
             clientRouter.registerCommand(LoginCommand.identifier, new LoginResponse(loginController));
             clientRouter.registerCommand(SignupCommand.identifier, new SignupResponse(loginController));
-            clientRouter.registerCommand(ChangeChannelCommand.identifier, ccr);
-            clientRouter.registerCommand(GetAllMessageCommand.identifier, gamr);
-            clientRouter.registerCommand(GetMessagesFromCommand.identifier, gmfr);
-            clientRouter.registerCommand(SendMessageCommand.identifier, smr);
-            clientRouter.registerCommand(CreateNewChannelCommand.identifier, ncr);
 
-
+            
+            loginView.show();
         });
     }
-    
 }

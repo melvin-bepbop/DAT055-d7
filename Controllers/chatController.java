@@ -1,17 +1,19 @@
 package Controllers;
+
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 
 import Models.Channel;
-import Models.ClientSession;
-import Models.User;
+import Models.ISessionModel;
 import Models.Message;
 import Models.MessagesInChannel;
-import Views.chatView;
+import Models.User;
+import Views.IChatView;
 import Network.Client;
-import Network.NetworkCommands.GetAllMessageCommand;
 import Network.NetworkCommands.GetMessagesFromCommand;
 import Network.NetworkCommands.SendMessageCommand;
+import Utils.ImageUtils;
 
 /**
  * Handles chat interactions for the active channel.
@@ -19,9 +21,8 @@ import Network.NetworkCommands.SendMessageCommand;
  * Responsible for sending messages, requesting message history from the server,
  * and updating the UI based on the local session cache.
  */
-public class chatController {
-    private chatView chatview;
-    private ClientSession session; 
+public class chatController implements IChatView.ViewListener {
+    private ISessionModel session;
     private Client networkClient; 
 
     
@@ -32,10 +33,31 @@ public class chatController {
      * @param chatview chat UI view to update
      * @param networkClient network client used to send protocol requests
      */
-    public chatController(ClientSession session, chatView chatview, Client networkClient){
+    public chatController(ISessionModel session, IChatView chatview, Client networkClient){
         this.session = session;
-        this.chatview = chatview;
         this.networkClient = networkClient;
+
+        chatview.setViewListener(this);
+        
+        if (chatview instanceof java.beans.PropertyChangeListener) {
+            this.session.addPropertyChangeListener((java.beans.PropertyChangeListener) chatview);
+        }
+    }
+    @Override
+    public void onSendTextMessage(String rawText) {
+        String cleanText = rawText.trim();
+        if (!cleanText.isEmpty()) {
+            sendMessageToServer(cleanText, "text");
+        }
+    }
+
+    @Override
+    public void onSendImageMessage(File selectedFile) {
+        
+        String base64Image = ImageUtils.encodeFileToBase64(selectedFile); 
+        if (base64Image != null) {
+            sendMessageToServer(base64Image, "image");
+        }
     }
 
     /**
@@ -58,17 +80,6 @@ public class chatController {
 
     }
 
-    /**
-     * Renders the cached message history for the currently active channel.
-     */
-    public void loadChannelHistory() {
-        // Fetch the cached messages from our local Session
-        LinkedList<Message> history = session.getHistoryForActiveChannel();
-        User currentUser = session.getActiveUser();
-        chatview.clearChatDisplay();
-        // Draw them to the screen
-        chatview.displayMessageHistory(history, currentUser);
-    }
 
     /**
      * Stores a full history list for a channel into the session cache and refreshes the UI.
@@ -76,13 +87,7 @@ public class chatController {
      * @param history messages belonging to the given channel
      * @param channel the channel the messages belong to
      */
-    public void addChannelHistory(LinkedList<Message> history, Channel channel) {
-        // Fetch the cached messages from our local Session
-        MessagesInChannel msgHis = new MessagesInChannel(channel);
-        msgHis.addMessages(history);
-        session.addChannelHistory(msgHis);
-        loadChannelHistory();
-    }
+
 
     /**
      * If the given message belongs to the currently active channel, requests any messages newer
@@ -109,45 +114,6 @@ public class chatController {
             
     }
 
-    /**
-     * Switches chat context to the given channel by requesting history if needed and/or requesting
-     * messages newer than the cached timestamp.
-     *
-     * @param channel the channel to switch to
-     */
-    public void ChangingChat(Channel channel){
-        LinkedList<MessagesInChannel> history = session.getMsgHistoryInChannels();
-        boolean isLoaded = false;
-        MessagesInChannel hstr = new MessagesInChannel(channel);
-        for (MessagesInChannel messagesInChannel : history) {
-            if(messagesInChannel.getChannel().getChannelName().equals(channel.getChannelName())){
-                isLoaded = true;
-                hstr = messagesInChannel;
-                break;
-                
-            }
-            System.out.println(messagesInChannel.getChannel().getChannelName());
-        }
-        if (!isLoaded) {
-            networkClient.sendMessage(GetAllMessageCommand.identifier+";"+channel.getChannelName());
-        }
-        else{
-            networkClient.sendMessage(GetMessagesFromCommand.identifier+";"+channel.getChannelName()+";"+hstr.getLastUpdated().toString());
-        }
-    }
 
-    /**
-     * Appends newly received messages to the cached history for a channel and refreshes the UI.
-     *
-     * @param channel channel to update
-     * @param msgs messages to append
-     */
-    public void updateChannelHistory(Channel channel, LinkedList<Message> msgs){
-        for (MessagesInChannel message : session.getMsgHistoryInChannels()) {
-            if(message.getChannel().getChannelName().equals(channel.getChannelName())){
-                message.addMessages(msgs);
-            }
-        }
-        loadChannelHistory();
-    }
+
 }

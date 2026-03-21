@@ -1,5 +1,4 @@
 package Network.ClientResponseCommands;
-import Controllers.LoginController;
 
 /**
  * Client-side handler for LOGIN responses.
@@ -7,14 +6,14 @@ import Controllers.LoginController;
  * Notifies the LoginController about successful or failed login attempts.
  */
 public class LoginResponse implements IClientResponseCommands{
-    private LoginController loginController;
+    private ILoginHandler loginHandler;
     /**
      * Creates a new LoginResponse handler.
      *
-     * @param loginController controller to notify about login results
+     * @param loginHandler handler to notify about login results
      */
-    public LoginResponse(LoginController loginController){
-        this.loginController = loginController;
+    public LoginResponse(ILoginHandler loginHandler) {
+        this.loginHandler = loginHandler;
     }
 
     @Override
@@ -25,10 +24,10 @@ public class LoginResponse implements IClientResponseCommands{
      */
     public void execute(String[] string){
         if(!string[1].equals("FAIL") ){
-            loginController.handleLoginSuccess(string[1], string[2]);
+            loginHandler.handleLoginSuccess(string[1], string[2]);
         }
         else{
-            loginController.handleLoginFailure();
+            loginHandler.handleLoginFailure();
         }
     }
 }
