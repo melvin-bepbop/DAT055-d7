@@ -54,12 +54,12 @@ public class ChangeChannelResponse implements IClientResponseCommands {
                 session.changeChannel(targetChannel);
 
                 boolean isLoaded = false;
-                MessagesInChannel hstr = new MessagesInChannel(targetChannel);
+                MessagesInChannel chanHistory = new MessagesInChannel(targetChannel);
                 
                 for (MessagesInChannel messagesInChannel : session.getMsgHistoryInChannels()) {
                     if(messagesInChannel.getChannel().getChannelName().equals(targetChannel.getChannelName())){
                         isLoaded = true;
-                        hstr = messagesInChannel;
+                        chanHistory = messagesInChannel;
                         break;
                     }
                 }
@@ -67,7 +67,7 @@ public class ChangeChannelResponse implements IClientResponseCommands {
                 if (!isLoaded) {
                     networkClient.sendMessage(GetAllMessageCommand.identifier + ";" + targetChannel.getChannelName());
                 } else {
-                    networkClient.sendMessage(GetMessagesFromCommand.identifier + ";" + targetChannel.getChannelName() + ";" + hstr.getLastUpdated().toString());
+                    networkClient.sendMessage(GetMessagesFromCommand.identifier + ";" + targetChannel.getChannelName() + ";" + chanHistory.getLastUpdated().toString());
                 }
             
         }

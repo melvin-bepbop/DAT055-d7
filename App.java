@@ -76,9 +76,9 @@ public class App {
                 ClientSession session = new ClientSession(currentUser, startingChannel, accessible);
 
                 
-                GUI mygui = new GUI(new String[0]); 
-                chatView cView = new chatView(mygui);
-                channelView chanView = new channelView(mygui);
+                GUI myGui = new GUI(new String[0]); 
+                chatView cView = new chatView(myGui);
+                channelView chanView = new channelView(myGui);
 
                 
                 cView.registerRenderer("text", (msg, g, time, isMe) -> {

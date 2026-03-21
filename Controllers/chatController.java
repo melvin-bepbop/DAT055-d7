@@ -101,14 +101,14 @@ public class chatController implements IChatView.ViewListener {
         if(activeChannel.getChannelName().equals(channelName)){
             System.out.println("Interested "+ activeChannel.getChannelName());
             LinkedList<MessagesInChannel> history = session.getMsgHistoryInChannels();
-            MessagesInChannel hstr = new MessagesInChannel(activeChannel);
+            MessagesInChannel chanHistory = new MessagesInChannel(activeChannel);
             for (MessagesInChannel messagesInChannel : history) {
                 if(messagesInChannel.getChannel().getChannelName().equals(activeChannel.getChannelName())){
-                    hstr = messagesInChannel;
+                    chanHistory = messagesInChannel;
                     break;
                 }
             }
-            networkClient.sendMessage(GetMessagesFromCommand.identifier+";"+channelName+";"+hstr.getLastUpdated().toString());
+            networkClient.sendMessage(GetMessagesFromCommand.identifier+";"+channelName+";"+chanHistory.getLastUpdated().toString());
 
         }
             

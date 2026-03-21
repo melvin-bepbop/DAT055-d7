@@ -32,12 +32,12 @@ public class ChangeChannelCommand implements INetworkCommand {
      * @param sender client handler that sent the request
      */
     public void execute(String[] data, ClientHandler sender){
-        String Channel = data[1];
+        String channel = data[1];
         String user = data[2];
         
-        chanRepo.UserJoinChannel(user,Channel);
-        chanRepo.UserLeaveChannel(user, Channel);
+        chanRepo.UserJoinChannel(user,channel);
+        chanRepo.UserLeaveChannel(user, channel);
 
-        sender.respondToClient(identifier+";"+Channel+";SUCCESS");
+        sender.respondToClient(identifier+";"+channel+";SUCCESS");
     }
 }

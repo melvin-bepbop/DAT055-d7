@@ -30,9 +30,9 @@ public class CreateNewChannelCommand implements INetworkCommand {
      */
     public void execute(String[] data, ClientHandler sender){
         //NEWCHNL;CHANNEL
-        String Channel = data[1];
+        String channel = data[1];
 
-        channelRepo.AddChannel(Channel);
-        sender.broadcastMessage(identifier+";"+Channel);
+        channelRepo.AddChannel(channel);
+        sender.broadcastMessage(identifier+";"+channel);
     }
 }

@@ -41,7 +41,7 @@ public class SentMessageResponse implements IClientResponseCommands {
      */
     public void execute(String[] string){
         // Format expected: SENDMSG;CHANNEL;USER;TYPE;CONTENT;TIME
-        String Channel = string[1];
+        String channel = string[1];
         String user = string[2];
         String type = string[3].toLowerCase(); 
         String content = string[4];
@@ -56,7 +56,7 @@ public class SentMessageResponse implements IClientResponseCommands {
             System.out.println("Received " + type + " message");
             Channel targetChannel = null;
             for (Channel c : session.getAccesibleChannels().getChannels()) {
-                if (c.getChannelName().equals(Channel)) {
+                if (c.getChannelName().equals(channel)) {
                     targetChannel = c;
                     break;
                 }

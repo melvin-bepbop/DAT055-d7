@@ -42,22 +42,22 @@ public class AppServer {
      * @param args command line arguments (unused)
      */
     public static void main(String[] args) {
-        PostgresTranslator db = PostgresTranslator.getInstance();
-        db.registerMessageType("text", (u, c, t) -> new TextMessage(u, c, t));
-        db.registerMessageType("image", (u, c, t) -> new ImageMessage(u, c, t));
-        db.connect();
+        PostgresTranslator database = PostgresTranslator.getInstance();
+        database.registerMessageType("text", (u, c, t) -> new TextMessage(u, c, t));
+        database.registerMessageType("image", (u, c, t) -> new ImageMessage(u, c, t));
+        database.connect();
 
         Router serverRouter = new Router();
-        serverRouter.registerCommand(LoginCommand.identifier, new LoginCommand(db));
-        serverRouter.registerCommand(SignupCommand.identifier, new SignupCommand(db));
-        serverRouter.registerCommand(GetServersCommand.identifier, new GetServersCommand(db));
-        serverRouter.registerCommand(GetAllMessageCommand.identifier, new GetAllMessageCommand(db));
-        serverRouter.registerCommand(ChangeChannelCommand.identifier, new ChangeChannelCommand(db));
-        serverRouter.registerCommand(GetMessagesFromCommand.identifier,new GetMessagesFromCommand(db));
-        serverRouter.registerCommand(SendMessageCommand.identifier, new SendMessageCommand(db));
-        serverRouter.registerCommand(CreateNewChannelCommand.identifier, new CreateNewChannelCommand(db));
+        serverRouter.registerCommand(LoginCommand.identifier, new LoginCommand(database));
+        serverRouter.registerCommand(SignupCommand.identifier, new SignupCommand(database));
+        serverRouter.registerCommand(GetServersCommand.identifier, new GetServersCommand(database));
+        serverRouter.registerCommand(GetAllMessageCommand.identifier, new GetAllMessageCommand(database));
+        serverRouter.registerCommand(ChangeChannelCommand.identifier, new ChangeChannelCommand(database));
+        serverRouter.registerCommand(GetMessagesFromCommand.identifier,new GetMessagesFromCommand(database));
+        serverRouter.registerCommand(SendMessageCommand.identifier, new SendMessageCommand(database));
+        serverRouter.registerCommand(CreateNewChannelCommand.identifier, new CreateNewChannelCommand(database));
 
-        //serverRouter.registerCommand(GetAllMessageCommand.identifier, new GetAllMessageCommand(db));
+        //serverRouter.registerCommand(GetAllMessageCommand.identifier, new GetAllMessageCommand(database));
 
 
         try {
@@ -74,11 +74,11 @@ public class AppServer {
 
 
 
-         new UserService(db);
+         new UserService(database);
         IChannelAccessRule myRule = new GlobalAccessRule();
 
-         new ChannelService(db, db, myRule);
-         new MessageService(db);
+         new ChannelService(database, database, myRule);
+         new MessageService(database);
        
     }
     
